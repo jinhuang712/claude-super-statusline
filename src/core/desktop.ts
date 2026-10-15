@@ -23,12 +23,12 @@ export function isDesktopWidget(id: string): id is DesktopWidgetId {
 
 /**
  * What the band shows until the user designs their own: one row, as little of the prompt area as it can
- * take. Short bars without reset times or a "Usage" label on the left; the cache hit ratio, output speed
+ * take. Short bars with their reset times and no "Usage" label on the left; the cache hit ratio, output speed
  * and cost on the right. Session tokens are one click away in the panel's tray.
  */
 export const DEFAULT_DESKTOP_LINES: LineConfig[] = [
   {
-    left: [{ widget: "usage.windows", label: null, options: { bar: true, barWidth: 6, showReset: false } }],
+    left: [{ widget: "usage.windows", label: null, options: { bar: true, barWidth: 6, showReset: true } }],
     right: [{ widget: "context.promptCache", label: "Cache", options: { showHitRatio: true } }, { widget: "tokens.outputSpeed" }, { widget: "cost.session" }],
   },
 ];

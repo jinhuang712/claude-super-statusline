@@ -138,7 +138,7 @@ The preview shows your real session; hover a choice to try it before you click. 
 The desktop app has no `statusLine`, so the plugin also ships as a Claude Code *mod* (`hooks/`): a band above the
 prompt, drawn by the same widget code, on the desktop app and in the terminal alike.
 
-* **What it shows** — by default one row: short 5-hour and weekly rate-limit bars on the left, the prompt-cache hit
+* **What it shows** — by default one row: short 5-hour and weekly rate-limit bars with their reset times on the left, the prompt-cache hit
   ratio, output speed and session cost on the right. The model, context and project are left out because the desktop
   app already shows them; tokens used and the rest are one click away in the panel.
 * **Design it in the panel** — *Layout → Desktop app* edits the band's own layout (saved as `desktop.lines`, apart
