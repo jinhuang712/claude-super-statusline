@@ -41,6 +41,8 @@ export interface FooterConfig {
   /** What a labelled widget with no data prints ("Name –"); "" hides it (Style → Empty widgets). */
   emptyText?: string;
   lines: LineConfig[];
+  /** The desktop app's band, drawn by the mod: its own lines, apart from the terminal's. */
+  desktop: { lines: LineConfig[] };
   git: { enabled: boolean; cacheMs: number };
   /** `trustedProjects` is honoured only in the user file (a project can't trust itself). */
   plugins: { dirs: string[]; trustedProjects?: string[] };
@@ -67,6 +69,8 @@ export interface WidgetManifest {
   sample?: string;
   source: "builtin" | "plugin";
   sourcePath?: string;
+  /** The mod can draw it, so the desktop layout may hold it. */
+  desktop: boolean;
 }
 export interface SampleMeta {
   id: string;

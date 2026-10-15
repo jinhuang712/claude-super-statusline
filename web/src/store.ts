@@ -26,6 +26,16 @@ export interface Selection {
 export type PresetId = "minimal" | "standard" | "full";
 /** Which config file edits are written to. */
 export type Scope = "user" | "project";
+/**
+ * Which layout the editor works on: the terminal statusline (`lines`) or the desktop app's band
+ * (`desktop.lines`, drawn by the mod). Both save through the same layer diff; only the lines differ.
+ */
+export type Surface = "terminal" | "desktop";
+
+/** The lines of `surface`: what the editor, the tray and the preview all work on. */
+export function linesOf(c: FooterConfig, surface: Surface): LineConfig[] {
+  return surface === "desktop" ? c.desktop.lines : c.lines;
+}
 
 /** Changes showing only commits ahead of / behind the upstream. */
 const AHEAD_BEHIND = { widget: "git.linesChanged", options: { lines: false, aheadBehind: true } };
@@ -88,6 +98,8 @@ interface State {
   paths: EffectiveConfig["paths"] | null;
   /** Where edits are saved. Defaults to the project file when the previewed project has one. */
   scope: Scope;
+  /** Whose layout the editor shows; the Style section (theme, bars, separator) applies to the terminal only. */
+  surface: Surface;
   /**
    * The project the panel is looking at: the previewed live session's directory, or null for the
    * directory the server was started in. Drives the project layer and project-scope saves.
@@ -144,6 +156,7 @@ interface State {
    */
   setConfig(mutate: (c: FooterConfig) => void): void;
   setScope(scope: Scope): void;
+  setSurface(surface: Surface): void;
   setColumns(n: number): void;
   setColumnsMode(m: "auto" | number): void;
   select(sel: Selection | null): void;
@@ -280,6 +293,7 @@ export const useStore = create<State>((set, get) => {
     layers: [],
     paths: null,
     scope: "user",
+    surface: "terminal",
     projectCwd: null,
     sandbox: false,
     demo: false,
@@ -340,6 +354,13 @@ export const useStore = create<State>((set, get) => {
       set({ scope });
     },
 
+    setSurface(surface) {
+      if (surface === get().surface) return;
+      // A selection is a position in one layout's lines, and the other layout has different ones.
+      set({ surface, selection: null, focusPos: null });
+      schedulePreview(0);
+    },
+
     setColumns(n) {
       if (n === get().columns) return;
       setPref("ssp.columns", String(n));
@@ -357,13 +378,14 @@ export const useStore = create<State>((set, get) => {
     closeOptions: () => set((st) => ({ selection: null, focusPos: st.selection })),
 
     addWidget(line, zone, widget, index) {
-      const lines = get().config!.lines;
+      const lines = linesOf(get().config!, get().surface);
       const l = lines.length === 0 ? 0 : Math.max(0, Math.min(line, lines.length - 1));
       const len = lines[l]?.[zone]?.length ?? 0;
       const pos: Selection = { line: l, zone, index: index === undefined ? len : Math.max(0, Math.min(index, len)) };
       get().setConfig((c) => {
-        if (c.lines.length === 0) c.lines.push({ left: [], right: [] });
-        zoneOf(c.lines[pos.line]!, zone).splice(pos.index, 0, { widget });
+        const cl = linesOf(c, get().surface);
+        if (cl.length === 0) cl.push({ left: [], right: [] });
+        zoneOf(cl[pos.line]!, zone).splice(pos.index, 0, { widget });
       });
       // Not selected (that would open its options on every add); focus goes to the new chip so
       // Alt+Arrow places it and Enter edits it — the tray item it came from may just have vanished.
@@ -374,16 +396,17 @@ export const useStore = create<State>((set, get) => {
 
     removeAt(sel) {
       get().setConfig((c) => {
-        zoneOf(c.lines[sel.line]!, sel.zone).splice(sel.index, 1);
+        zoneOf(linesOf(c, get().surface)[sel.line]!, sel.zone).splice(sel.index, 1);
       });
       set({ selection: null });
     },
 
     moveWidget(from, toLine, toZone, toIndex) {
       get().setConfig((c) => {
-        const [item] = zoneOf(c.lines[from.line]!, from.zone).splice(from.index, 1);
+        const cl = linesOf(c, get().surface);
+        const [item] = zoneOf(cl[from.line]!, from.zone).splice(from.index, 1);
         if (!item) return;
-        const target = zoneOf(c.lines[toLine]!, toZone);
+        const target = zoneOf(cl[toLine]!, toZone);
         target.splice(toIndex ?? target.length, 0, item);
       });
       set({ selection: null });
@@ -392,19 +415,19 @@ export const useStore = create<State>((set, get) => {
     reorder(line, zone, from, to) {
       if (from === to) return;
       get().setConfig((c) => {
-        const arr = zoneOf(c.lines[line]!, zone);
+        const arr = zoneOf(linesOf(c, get().surface)[line]!, zone);
         const [item] = arr.splice(from, 1);
         if (item) arr.splice(to, 0, item);
       });
     },
 
     addLine() {
-      get().insertLine(get().config!.lines.length);
+      get().insertLine(linesOf(get().config!, get().surface).length);
     },
 
     insertLine(at) {
       get().setConfig((c) => {
-        c.lines.splice(at, 0, { left: [], right: [] });
+        linesOf(c, get().surface).splice(at, 0, { left: [], right: [] });
       });
       // Selections are line indexes: without the shift, the open panel would jump to the widget
       // that now sits where the edited one used to be (or close, on the new empty line).
@@ -414,24 +437,25 @@ export const useStore = create<State>((set, get) => {
 
     removeLine(i) {
       get().setConfig((c) => {
-        c.lines.splice(i, 1);
+        linesOf(c, get().surface).splice(i, 1);
       });
       set({ selection: null });
     },
 
     moveLine(i, dir) {
       const j = i + dir;
-      if (j < 0 || j >= get().config!.lines.length) return;
+      if (j < 0 || j >= linesOf(get().config!, get().surface).length) return;
       get().setConfig((c) => {
-        const [l] = c.lines.splice(i, 1);
-        if (l) c.lines.splice(j, 0, l);
+        const cl = linesOf(c, get().surface);
+        const [l] = cl.splice(i, 1);
+        if (l) cl.splice(j, 0, l);
       });
       set({ selection: null });
     },
 
     updateAt(sel, mutate) {
       get().setConfig((c) => {
-        const w = zoneOf(c.lines[sel.line]!, sel.zone)[sel.index];
+        const w = zoneOf(linesOf(c, get().surface)[sel.line]!, sel.zone)[sel.index];
         if (w) mutate(w);
       });
     },
@@ -577,12 +601,15 @@ export const useStore = create<State>((set, get) => {
     },
 
     async refreshPreview() {
-      const { config, sampleId, columns, tryOn } = get();
+      const { config, sampleId, columns, tryOn, surface } = get();
       if (!config) return;
+      // The desktop band has no render engine of its own on this side: its lines are drawn by the
+      // terminal one, as text. It is an approximation (the app draws the bars as coloured blocks).
+      const shown = surface === "desktop" ? { ...config, lines: config.desktop.lines } : config;
       try {
-        const preview = await api.render(tryOn ? { ...config, ...tryOn.patch } : config, sampleId, columns);
+        const preview = await api.render(tryOn && surface === "terminal" ? { ...shown, ...tryOn.patch } : shown, sampleId, columns);
         // A newer request is on its way (width changed, or the try-on started/ended meanwhile).
-        if (get().columns !== columns || get().tryOn !== tryOn) return;
+        if (get().columns !== columns || get().tryOn !== tryOn || get().surface !== surface) return;
         set({ preview, previewColumns: columns });
       } catch (err) {
         set({ toast: tr().toast.previewFailed(err instanceof Error ? err.message : String(err)) });
@@ -591,7 +618,8 @@ export const useStore = create<State>((set, get) => {
 
     nudge(sel, dir) {
       const c = get().config!;
-      const line = c.lines[sel.line];
+      const cLines = linesOf(c, get().surface);
+      const line = cLines[sel.line];
       if (!line) return;
       const zones: Zone[] = hasCenter(get()) ? ["left", "center", "right"] : ["left", "right"];
       const len = (l: LineConfig | undefined, z: Zone) => l?.[z]?.length ?? 0;
@@ -607,14 +635,15 @@ export const useStore = create<State>((set, get) => {
         }
       } else {
         const l = sel.line + (dir === "up" ? -1 : 1);
-        if (l >= 0 && l < c.lines.length) to = { line: l, zone: sel.zone, index: Math.min(sel.index, len(c.lines[l], sel.zone)) };
+        if (l >= 0 && l < cLines.length) to = { line: l, zone: sel.zone, index: Math.min(sel.index, len(cLines[l], sel.zone)) };
       }
       if (!to) return;
       const target = to;
       const id = line[sel.zone]?.[sel.index]?.widget ?? "";
       get().setConfig((cc) => {
-        const [item] = zoneOf(cc.lines[sel.line]!, sel.zone).splice(sel.index, 1);
-        if (item) zoneOf(cc.lines[target.line]!, target.zone).splice(target.index, 0, item);
+        const ccLines = linesOf(cc, get().surface);
+        const [item] = zoneOf(ccLines[sel.line]!, sel.zone).splice(sel.index, 1);
+        if (item) zoneOf(ccLines[target.line]!, target.zone).splice(target.index, 0, item);
       });
       const t = tr();
       const name = widgetName(t, get().widgets.find((w) => w.id === id), id);
@@ -646,8 +675,9 @@ export function matchingPreset(lines: LineConfig[]): PresetId | null {
 }
 
 /** Which layout mode is on: "custom" when chosen explicitly or when the lines match no preset. */
-export function layoutMode(state: Pick<State, "customMode" | "config">): PresetId | "custom" {
-  if (state.customMode || !state.config) return "custom";
+export function layoutMode(state: Pick<State, "customMode" | "config" | "surface">): PresetId | "custom" {
+  // Presets are terminal layouts; the desktop band is always edited directly.
+  if (state.customMode || !state.config || state.surface === "desktop") return "custom";
   return matchingPreset(state.config.lines) ?? "custom";
 }
 
@@ -656,13 +686,15 @@ export function layoutMode(state: Pick<State, "customMode" | "config">): PresetI
  * the editor no longer offers it for new widgets: a centred statusline segment is rare, and the
  * opt-in toggle cost every visitor a control. Configs that already use it stay fully editable.
  */
-export function hasCenter(state: Pick<State, "config">): boolean {
+export function hasCenter(state: Pick<State, "config" | "surface">): boolean {
+  // The desktop band has no center zone: it is one row of left and right.
+  if (state.surface === "desktop") return false;
   return state.config?.lines.some((l) => (l.center?.length ?? 0) > 0) ?? false;
 }
 
 export function widgetAt(state: State, sel: Selection | null): WidgetInstance | null {
   if (!sel || !state.config) return null;
-  return state.config.lines[sel.line]?.[sel.zone]?.[sel.index] ?? null;
+  return linesOf(state.config, state.surface)[sel.line]?.[sel.zone]?.[sel.index] ?? null;
 }
 
 export function isDirty(state: State): boolean {

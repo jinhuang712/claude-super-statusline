@@ -96,6 +96,9 @@ export const en = {
   },
 
   layout: {
+    surface: "Show on",
+    surfaces: { terminal: "Terminal", desktop: "Desktop app" },
+    desktopHint: "The desktop app has no statusline, so a mod draws this band above the prompt. It has its own layout and only the widgets listed below; the model, context and project are already on screen there. The preview approximates it as text. The theme, bars and separator above apply to the terminal only.",
     title: "Layout",
     hint: "Each row is one line of the statusline. Click a widget to edit it; drag it — or press Alt+Arrow keys — to reorder it or move it to another line.",
     zones: { left: "Left", center: "Center", right: "Right" },

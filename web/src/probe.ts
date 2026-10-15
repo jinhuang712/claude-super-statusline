@@ -94,6 +94,7 @@ export function probeConfig(inst: WidgetInstance, theme: FooterConfig["theme"] |
     columnsOffset: 0,
     emptyText,
     lines: [{ left: [inst] }],
+    desktop: { lines: [] },
     git: { enabled: true, cacheMs: 2000 },
     plugins: { dirs: [] },
     captureSamples: false,

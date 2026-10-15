@@ -1857,3 +1857,14 @@ input[type="checkbox"] {
     width: 100%;
   }
 }
+
+/* A section that does not apply to the surface being edited (Style, while the desktop band is): shown, but at rest. */
+.surface-rest[inert] {
+  opacity: 0.45;
+  transition: opacity 0.15s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .surface-rest[inert] {
+    transition: none;
+  }
+}

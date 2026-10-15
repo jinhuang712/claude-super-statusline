@@ -77,7 +77,7 @@ function useMastheadHeight(ref: React.RefObject<HTMLDivElement | null>) {
 
 export default function App() {
   const t = useT();
-  const { loading, error, config, init, toast, notify } = useStore();
+  const { loading, error, config, init, toast, notify, surface } = useStore();
   const mast = useRef<HTMLDivElement>(null);
   useSchemeAttr();
   useHtmlLang();
@@ -123,7 +123,10 @@ export default function App() {
       <main className="wrap page">
         <Welcome />
         {/* Style first: three short summaries, then the layout (presets, and the editor in Custom), which can run long. */}
-        <Style />
+        {/* Theme, bars and separator style the terminal's statusline; the desktop band is drawn by a mod, so they rest while it is edited. */}
+        <div className="surface-rest" inert={surface === "desktop"}>
+          <Style />
+        </div>
         <Layout />
       </main>
       {toast && (

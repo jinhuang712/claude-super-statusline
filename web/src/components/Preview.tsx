@@ -2,7 +2,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import { useEffect, useId, useRef, useState } from "react";
 import { useT } from "../i18n";
-import { useStore } from "../store";
+import { linesOf, useStore } from "../store";
 import { parseAnsi } from "./Ansi";
 import { Icon } from "./Icon";
 import { Popover } from "./Popover";
@@ -216,7 +216,7 @@ export function Preview() {
   const columns = useStore((s) => s.columns);
   const setColumns = useStore((s) => s.setColumns);
   const columnsMode = useStore((s) => s.columnsMode);
-  const lineCount = useStore((s) => s.config?.lines.length ?? 0);
+  const lineCount = useStore((s) => (s.config ? linesOf(s.config, s.surface).length : 0));
   const tryOn = useStore((s) => s.tryOn);
   const scheme = useTheme(termScheme);
 

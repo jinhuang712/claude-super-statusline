@@ -5,7 +5,7 @@ import { CAT_COLOR } from "../colors";
 import { TRAY_DROP_ID, TRAY_PREFIX } from "../collision";
 import { RETIRED } from "../retired";
 import { useT, widgetDesc, widgetName } from "../i18n";
-import { useStore } from "../store";
+import { linesOf, useStore } from "../store";
 
 /**
  * Tray groups, in reading order, and the widget categories each one gathers. The tray only lists
@@ -96,7 +96,7 @@ function TrayTip({ id, anchor, w }: { id: string; anchor: HTMLElement; w: Widget
 
 function TrayItem({ w, repeatable }: { w: WidgetManifest; repeatable: boolean }) {
   const t = useT();
-  const lines = useStore((s) => s.config!.lines);
+  const lines = useStore((s) => linesOf(s.config!, s.surface));
   const addWidget = useStore((s) => s.addWidget);
   const { setNodeRef, listeners, isDragging } = useDraggable({ id: `${TRAY_PREFIX}${w.id}` });
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
@@ -182,12 +182,16 @@ export function Tray() {
   const t = useT();
   const widgets = useStore((s) => s.widgets);
   const config = useStore((s) => s.config!);
+  const surface = useStore((s) => s.surface);
   const { setNodeRef, isOver, active } = useDroppable({ id: TRAY_DROP_ID });
-  const placed = useMemo(() => config.lines.flatMap((l) => [...(l.left ?? []), ...(l.center ?? []), ...(l.right ?? [])]), [config.lines]);
+  const lines = linesOf(config, surface);
+  const placed = useMemo(() => lines.flatMap((l) => [...(l.left ?? []), ...(l.center ?? []), ...(l.right ?? [])]), [lines]);
   const groups = useMemo(() => {
     const inUse = new Set(placed.map((w) => w.widget));
     const map = new Map<TrayGroup, WidgetManifest[]>();
     for (const w of widgets) {
+      // The desktop band is drawn by a mod, which can only run some of the widgets.
+      if (surface === "desktop" && !w.desktop) continue;
       const offered = !RETIRED.has(w.id) && (REPEATABLE(w.id) || (!inUse.has(w.id) && !coveredBy(w.id, placed, widgets)));
       if (offered) map.set(groupOf(w.category), [...(map.get(groupOf(w.category)) ?? []), w]);
     }
@@ -200,7 +204,7 @@ export function Tray() {
     }
     const order = GROUPS.map((g) => g.id);
     return [...map.entries()].sort(([a], [b]) => order.indexOf(a) - order.indexOf(b));
-  }, [widgets, placed]);
+  }, [widgets, placed, surface]);
   const count = groups.reduce((n, [, ws]) => n + ws.length, 0);
   // Only a chip from the layout can be dropped here (a tray item dropped back on the tray is a no-op).
   const removing = isOver && active !== null && !String(active.id).startsWith(TRAY_PREFIX);

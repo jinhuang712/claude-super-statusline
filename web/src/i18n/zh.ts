@@ -87,6 +87,9 @@ export const zh: Messages = {
   },
 
   layout: {
+    surface: "显示在",
+    surfaces: { terminal: "终端", desktop: "桌面端" },
+    desktopHint: "桌面端没有状态栏，由一个 mod 在输入框上方画这一条带。它有自己的一套布局，只能用下面列出的组件；模型、上下文和项目桌面端界面上已经有了。预览用文字近似显示。上面的主题、进度条和分隔符只作用于终端。",
     title: "布局",
     hint: "每一行对应状态栏的一行。点名字改选项；拖动（或按 Alt+方向键）可以排序、挪到别的行。",
     zones: { left: "靠左", center: "居中", right: "靠右" },

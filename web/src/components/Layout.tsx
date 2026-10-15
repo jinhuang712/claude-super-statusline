@@ -16,7 +16,7 @@ import type { LineConfig, WidgetInstance, Zone } from "../api";
 import { CAT_COLOR } from "../colors";
 import { collision, TRAY_DROP_ID, TRAY_PREFIX, ZONE_PREFIX } from "../collision";
 import { useT, widgetName } from "../i18n";
-import { emptyStateAt, hasCenter, layoutMode, useStore, widgetAt } from "../store";
+import { emptyStateAt, hasCenter, layoutMode, linesOf, useStore, widgetAt, type Surface } from "../store";
 import { Icon } from "./Icon";
 import { OptionsPanel } from "./Options";
 import { LayoutModes } from "./LayoutModes";
@@ -222,6 +222,9 @@ function LineMenu({ line, index, total }: { line: LineConfig; index: number; tot
               × {t.layout.deleteLine}
             </button>
           </div>
+          {/* The desktop band is one fixed row of left and right: it has no width to overflow or hide at. */}
+          {s.surface === "terminal" && (
+          <>
           <label className="linemenu-field">
             <span>{t.layout.overflow}</span>
             <select
@@ -229,7 +232,7 @@ function LineMenu({ line, index, total }: { line: LineConfig; index: number; tot
               value={line.overflow ?? "truncate"}
               onChange={(e) =>
                 s.setConfig((c) => {
-                  c.lines[index]!.overflow = e.target.value as LineConfig["overflow"];
+                  linesOf(c, s.surface)[index]!.overflow = e.target.value as LineConfig["overflow"];
                 })
               }
             >
@@ -253,14 +256,17 @@ function LineMenu({ line, index, total }: { line: LineConfig; index: number; tot
                 onChange={(e) =>
                   s.setConfig((c) => {
                     const v = Number(e.target.value);
-                    if (v > 0) c.lines[index]!.minColumns = v;
-                    else delete c.lines[index]!.minColumns;
+                    const target = linesOf(c, s.surface)[index]!;
+                    if (v > 0) target.minColumns = v;
+                    else delete target.minColumns;
                   })
                 }
               />
               {t.layout.columnsUnit}
             </span>
           </label>
+          </>
+          )}
         </div>
       )}
     </Popover>
@@ -328,6 +334,26 @@ function widgetOfDragId(id: string): string {
   return id.startsWith(TRAY_PREFIX) ? id.slice(TRAY_PREFIX.length) : id.split("#")[0]!;
 }
 
+/**
+ * Which layout is being edited: the terminal statusline, or the desktop app's band (drawn by the
+ * mod). The desktop has no statusLine, so it gets its own lines; the choice only moves the editor.
+ */
+function SurfaceSwitch() {
+  const t = useT();
+  const surface = useStore((s) => s.surface);
+  const setSurface = useStore((s) => s.setSurface);
+  const options: Surface[] = ["terminal", "desktop"];
+  return (
+    <span className="seg" role="group" aria-label={t.layout.surface}>
+      {options.map((o) => (
+        <button key={o} type="button" aria-pressed={surface === o} onClick={() => setSurface(o)}>
+          {t.layout.surfaces[o]}
+        </button>
+      ))}
+    </span>
+  );
+}
+
 export function Layout() {
   const t = useT();
   const config = useStore((s) => s.config)!;
@@ -340,15 +366,17 @@ export function Layout() {
   const live = useStore((s) => s.live);
   const withCenter = useStore(hasCenter);
   const mode = useStore(layoutMode);
+  const surface = useStore((s) => s.surface);
+  const lines = linesOf(config, surface);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
   const [dragging, setDragging] = useState<string | null>(null);
   const [caret, setCaret] = useState<Pos | null>(null);
-  const { ids, at } = useMemo(() => indexChips(config.lines), [config.lines]);
+  const { ids, at } = useMemo(() => indexChips(lines), [lines]);
 
   /** Where a drop on `overId` (a zone or a chip) lands, or null when it isn't in the layout. */
   function dropTarget(overId: string): Pos | null {
     const z = parseZoneId(overId);
-    if (z) return { ...z, index: config.lines[z.line]?.[z.zone]?.length ?? 0 };
+    if (z) return { ...z, index: lines[z.line]?.[z.zone]?.length ?? 0 };
     return ids.get(overId) ?? null;
   }
   function onDragStart(e: DragStartEvent) {
@@ -382,7 +410,7 @@ export function Layout() {
     const z = parseZoneId(overId);
     if (z) {
       // Dropped on a zone's empty space: append there (a no-op if it is already last in that zone).
-      const len = config.lines[z.line]?.[z.zone]?.length ?? 0;
+      const len = lines[z.line]?.[z.zone]?.length ?? 0;
       if (a.line === z.line && a.zone === z.zone) {
         if (a.index !== len - 1) reorder(a.line, a.zone, a.index, len - 1);
       } else moveWidget(a, z.line, z.zone, len);
@@ -400,14 +428,15 @@ export function Layout() {
         <h2 id="layout-title" className="h2">
           {t.layout.title}
         </h2>
+        <SurfaceSwitch />
       </div>
-      <LayoutModes />
+      {surface === "terminal" && <LayoutModes />}
       <p className="sr-only" aria-live="polite">
         {live}
       </p>
       {mode === "custom" && (
         <>
-          <p className="hint layout-hint">{t.layout.hint}</p>
+          <p className="hint layout-hint">{surface === "desktop" ? t.layout.desktopHint : t.layout.hint}</p>
           <p id={CHIP_HELP_ID} className="sr-only">
             {t.layout.chipHelp}
           </p>
@@ -438,8 +467,8 @@ export function Layout() {
         <div className="layout-card">
           {/* data-dragging widens empty zones into visible drop slots, only while something is being dragged. */}
           <div className="linelist" data-dragging={dragging !== null}>
-            {config.lines.map((line, i) => (
-              <Row key={i} line={line} index={i} total={config.lines.length} withCenter={withCenter} at={at} caret={caret} />
+            {lines.map((line, i) => (
+              <Row key={`${surface}${i}`} line={line} index={i} total={lines.length} withCenter={withCenter} at={at} caret={caret} />
             ))}
           </div>
           {/* Sits in the rows' column, as the next row would: adding a line reads as extending the list. */}
