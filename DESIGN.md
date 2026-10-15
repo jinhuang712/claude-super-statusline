@@ -119,8 +119,8 @@ user file. The project is the previewed session's directory (`?cwd=`, accepted o
 * **Look**: Claude Code's own design language, defined as tokens at the top of `web/src/index.css` — warm
   ivory/slate neutrals, one fixed clay accent (`--clay`, not the edited theme's colour, so focus rings and the
   primary button keep their contrast), serif titles over a sans body, mono for everything that mirrors the
-  terminal, and the wordmark: `❯ super-statusline` in mono ("super" in the accent), a block cursor that blinks four
-  times and stays, and a hairline in the category colours under the name (`.brand` in `index.css`; the favicon is the
+  terminal, and the wordmark: `❯ super-statusline` in mono ("super" in the accent), a block cursor that blinks
+  continuously (it is a button: a click pauses it, and the choice is remembered), and a hairline in the category colours under the name (`.brand` in `index.css`; the favicon is the
   same prompt and cursor). Sizes are rem on a 110% root (at 100% the page read a size too small),
   so it also follows the viewer's browser font setting; the preview's lines are a step larger still
   (0.9rem, 16px by default). Surfaces are told apart by fill, not borders — page < row (`--row`) < chip
