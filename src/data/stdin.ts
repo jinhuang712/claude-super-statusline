@@ -1,7 +1,7 @@
 import type { ScopedUsageWindow, StdinData, UsageData, TranscriptData } from './types.js';
 export type ModelFormatMode = 'full' | 'compact' | 'short';
 import { AUTOCOMPACT_BUFFER_PERCENT } from './constants.js';
-import { createDebug } from './debug.js';
+import { createDebug, safeEnv } from "./debug.js";
 import { sanitizeTranscriptModel } from './model-source.js';
 import { sanitizeDisplayText } from './utils/sanitize.js';
 
@@ -318,7 +318,7 @@ const MINIMAX_ANTHROPIC_ENDPOINTS = new Set([
   'https://api.minimaxi.com/anthropic',
 ]);
 
-function isMiniMaxAnthropicEndpoint(env: NodeJS.ProcessEnv = process.env): boolean {
+function isMiniMaxAnthropicEndpoint(env: NodeJS.ProcessEnv = safeEnv()): boolean {
   const baseUrl = env.ANTHROPIC_BASE_URL?.trim() || env.ANTHROPIC_API_BASE_URL?.trim();
   if (!baseUrl) {
     return false;
@@ -346,7 +346,7 @@ export function isEnterpriseModelId(modelId?: string): boolean {
  * to check different signals, so with a Bedrock alias id the badge said "Bedrock" while the cost
  * (which reads $0 / is unreliable on routed billing) still showed.
  */
-export function routedProvider(stdin: StdinData, env: NodeJS.ProcessEnv = process.env): 'Bedrock' | 'Vertex' | null {
+export function routedProvider(stdin: StdinData, env: NodeJS.ProcessEnv = safeEnv()): "Bedrock" | "Vertex" | null {
   if (env.CLAUDE_CODE_USE_BEDROCK === '1' || isBedrockModelId(stdin.model?.id)) {
     return 'Bedrock';
   }
