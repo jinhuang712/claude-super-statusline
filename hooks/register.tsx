@@ -225,9 +225,39 @@ const renderInstance = (inst: Instance, ctx: Ctx): Segment[] => {
   }
 }
 
+/**
+ * The terminal's ANSI colour names as hex. The widgets and themes colour with those names (`brightBlue`
+ * is the default theme's `usage` token), but the desktop app only knows its own theme keys and CSS
+ * colours: given `brightBlue` it drew nothing, so the filled part of a bar became a transparent gap.
+ * Mid-tones, so they read on a light and a dark ground alike.
+ */
+const ANSI_HEX: Record<string, string> = {
+  black: '#555555',
+  red: '#e5484d',
+  green: '#3fa34d',
+  yellow: '#e6b800',
+  blue: '#4f8ff7',
+  magenta: '#c05ccf',
+  cyan: '#2bb5c4',
+  white: '#d4d4d4',
+  gray: '#8a8a8a',
+  grey: '#8a8a8a',
+  brightBlack: '#8a8a8a',
+  brightRed: '#ff6b6b',
+  brightGreen: '#5fd16f',
+  brightYellow: '#ffd43b',
+  brightBlue: '#6ea8ff',
+  brightMagenta: '#e089f0',
+  brightCyan: '#5fdce8',
+  brightWhite: '#f2f2f2',
+}
+
+/** A segment's colour as the band can draw it: a theme token resolved, an ANSI name as hex, `default` as none. */
 const colorOf = (fg: string | undefined) => {
   if (!fg || fg === 'default') return undefined
-  return theme.tokens[fg] === 'default' ? undefined : (theme.tokens[fg] ?? fg)
+  const resolved = theme.tokens[fg] ?? fg
+  if (resolved === 'default') return undefined
+  return ANSI_HEX[resolved] ?? resolved
 }
 
 /**
