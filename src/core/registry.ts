@@ -1,4 +1,5 @@
 import type { RegisteredWidget, WidgetDefinition, WidgetManifest } from "./types.js";
+import { isDesktopWidget } from "./desktop.js";
 
 const widgets = new Map<string, RegisteredWidget>();
 
@@ -27,6 +28,7 @@ export function widgetManifest(): WidgetManifest[] {
     sample: w.sample,
     source: w.source,
     sourcePath: w.sourcePath,
+    desktop: isDesktopWidget(w.id),
   }));
 }
 

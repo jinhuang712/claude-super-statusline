@@ -261,6 +261,8 @@ export interface WidgetManifest {
   sample?: string;
   source: "builtin" | "plugin";
   sourcePath?: string;
+  /** Whether the desktop band's mod can draw it (src/core/desktop.ts); the panel's desktop tray offers only these. */
+  desktop: boolean;
 }
 
 export interface RenderedLine {
