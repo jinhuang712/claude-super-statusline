@@ -18,5 +18,6 @@
   ],
   "commands": [
     "./commands/config.md"
-  ]
+  ],
+  "types": "./types/index.d.ts"
 }
