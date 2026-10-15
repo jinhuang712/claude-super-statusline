@@ -133,6 +133,21 @@ The preview shows your real session; hover a choice to try it before you click. 
 | Environment variable | The value of a variable, e.g. `AWS_PROFILE` |
 | Clock | The current time |
 
+## In the desktop app
+
+The desktop app has no `statusLine`, so the plugin also ships as a Claude Code *mod* (`hooks/`): a band above the
+prompt, drawn by the same widget code, on the desktop app and in the terminal alike.
+
+* **What it shows** — the 5-hour and weekly rate-limit bars and the session cost on the first row; the prompt-cache
+  hit ratio (latest request and session average), tokens used and output speed on the second. The model, context
+  and project are left out because the desktop app already shows them.
+* **What it counts itself** — a mod cannot read the statusline payload, so tokens, cache hits and speed are counted
+  from each model request since the session started (a restart begins again from zero).
+* **Limits** — it is a fixed layout, not the one you design in the configurator, and a mod cannot import Node
+  modules, so the widgets that read files or run git (project path, branch, changes, session cost estimates) are not
+  in it yet.
+* **Tests** — `scripts/test-mod.sh` runs `hooks/*.test.ts` with `claude plugin test`; `bun test` skips `hooks/`.
+
 ## More
 
 * [INSTALL.md](INSTALL.md) — install, uninstall, upgrading from claude-code-ssp
