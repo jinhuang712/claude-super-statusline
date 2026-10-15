@@ -298,19 +298,46 @@ export function PromptMark() {
   );
 }
 
+/** Where the wordmark's cursor remembers being paused (per browser; storage can throw, then it just isn't remembered). */
+const CURSOR_PAUSED_KEY = "ssp.cursorPaused";
+
+function readCursorPaused(): boolean {
+  try {
+    return localStorage.getItem(CURSOR_PAUSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * The product's name as the page heading (styles and rationale at .brand in index.css). The prompt,
  * the cursor and the hairline are decoration, so the heading reads "super-statusline". It is a proper
  * name, the same in every language, so it isn't a locale string.
+ *
+ * The cursor blinks for as long as the page is open, so it is also the way to stop it (WCAG 2.2.2): a
+ * real button, reachable by keyboard, that remembers the choice. The heading keeps a fixed name so the
+ * button inside it does not become part of it.
  */
 function Wordmark() {
+  const t = useT();
+  const [paused, setPaused] = useState(readCursorPaused);
+  const toggle = () => {
+    const next = !paused;
+    setPaused(next);
+    try {
+      localStorage.setItem(CURSOR_PAUSED_KEY, next ? "1" : "0");
+    } catch {
+      /* not remembered; still applies for this page view */
+    }
+  };
+  const label = paused ? t.header.cursorResume : t.header.cursorPause;
   return (
-    <h1 className="brand mono">
+    <h1 className="brand mono" aria-label="super-statusline">
       <PromptMark />
       <span className="brand-word">
         <span>
           <span className="brand-super">super</span>-statusline
-          <span className="brand-cursor" aria-hidden="true" />
+          <button type="button" className="brand-cursor" data-paused={paused} aria-pressed={paused} aria-label={label} title={label} onClick={toggle} />
         </span>
         <span className="brand-base" aria-hidden="true">
           {BASELINE.map((seg, i) => (seg ? <span key={i} style={{ width: seg.width, background: seg.color }} /> : <span key={i} style={{ flex: 1 }} />))}

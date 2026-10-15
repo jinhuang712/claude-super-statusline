@@ -41,6 +41,8 @@ export const en = {
     reapply: "Re-apply",
     reapplyTitle: "Rarely needed: every save applies automatically. Use this to repair settings.json if something else changed it.",
     language: "Language",
+    cursorPause: "Pause the blinking cursor",
+    cursorResume: "Resume the blinking cursor",
     sandbox: "Sandbox",
     demo: "Demo",
     demoTitle: "A demo with a sample session. Your changes stay in this browser; install the plugin to use it in Claude Code.",

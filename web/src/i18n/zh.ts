@@ -35,6 +35,8 @@ export const zh: Messages = {
     reapply: "重新应用",
     reapplyTitle: "一般不需要点：每次保存会自动应用。这里只在 settings.json 被外部改坏时用来修复",
     language: "语言",
+    cursorPause: "暂停光标闪烁",
+    cursorResume: "恢复光标闪烁",
     sandbox: "沙盒",
     demo: "演示",
     demoTitle: "用示例会话演示。改动只保存在这个浏览器里；安装插件后才能在 Claude Code 里使用。",

@@ -230,9 +230,10 @@ button:disabled {
   under the name a hairline in the widget category colours (a statusline in miniature). Picked on the
   design canvas (C+D ②) over the serif "Claude Code statusline" with ✻. Sizes are in em so the parts
   scale with the name.
-  The cursor blinks four times and then stays: WCAG 2.2.2 allows blinking only for up to five seconds
-  unless it can be paused, and the global reduced-motion rule above stops it altogether. It is clay
-  (the fill colour); the text parts use --accent, the clay that reads as text on either scheme.
+  The cursor blinks for as long as the page is open. WCAG 2.2.2 allows that only when it can be paused,
+  so the cursor is a button (Header.tsx Wordmark) that pauses it and remembers the choice, and the global
+  reduced-motion rule above stops it altogether. It is clay (the fill colour); the text parts use
+  --accent, the clay that reads as text on either scheme.
 */
 .brand {
   display: inline-flex;
@@ -268,7 +269,18 @@ button:disabled {
   border-radius: 1px;
   background: var(--clay);
   vertical-align: -0.2em;
-  animation: brand-blink 1.1s steps(1) 4;
+  animation: brand-blink 1.1s steps(1) infinite;
+  /* A button, drawn as the bare block it always was. */
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+.brand-cursor[data-paused="true"] {
+  animation: none;
+}
+.brand-cursor:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 @keyframes brand-blink {
   50% {
