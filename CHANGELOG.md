@@ -2,8 +2,10 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
-## Unreleased
+## 0.6.0 — 2026-10-16
 
+- **In a narrow pane (a split view, a small window) the desktop band moves whole widgets to another row** instead of
+  breaking their text mid-phrase; widgets are spaced by a gap rather than a `│`.
 - **Renamed: Claude Super Statusline.** It is no longer only for Claude Code, so *claude-code-super-statusline* is now
   *claude-super-statusline*: the repository, the demo site (`jinhuang712.github.io/claude-super-statusline/`), the clone
   directory, the CLI's messages and the folders it keeps on disk (`~/.config/claude-super-statusline`,
