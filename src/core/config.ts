@@ -1,11 +1,12 @@
 /**
  * Config loading with three layers: defaults → user file → project file.
- * Objects deep-merge; `lines` replaces wholesale.
+ * Objects deep-merge; `lines` and `desktop.lines` replace wholesale.
  */
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAME, newOrLegacy } from "../data/app-name.js";
+import { DEFAULT_DESKTOP_LINES, readDesktopLines } from "./desktop.js";
 import type { FooterConfig, LineConfig, WidgetInstance } from "./types.js";
 
 /** 2: ahead/behind and the file stats moved from git.branch to git.linesChanged (migrateGitBranchParts). */
@@ -57,6 +58,7 @@ export const DEFAULT_CONFIG: FooterConfig = {
   columnsOffset: 4,
   emptyText: "",
   lines: DEFAULT_LINES,
+  desktop: { lines: DEFAULT_DESKTOP_LINES },
   git: { enabled: true, cacheMs: 2000 },
   plugins: { dirs: [], trustedProjects: [] },
   captureSamples: true,
@@ -207,6 +209,7 @@ export function normalizeConfig(input: Partial<FooterConfig>): FooterConfig {
     columnsOffset: Number.isFinite(merged.columnsOffset) ? Math.max(0, Math.floor(Number(merged.columnsOffset))) : DEFAULT_CONFIG.columnsOffset,
     emptyText: typeof merged.emptyText === "string" ? merged.emptyText : DEFAULT_CONFIG.emptyText,
     lines: lines.map(cleanLine),
+    desktop: { lines: readDesktopLines(merged) },
     git: { enabled: merged.git?.enabled !== false, cacheMs: Number.isFinite(merged.git?.cacheMs) ? Number(merged.git.cacheMs) : 2000 },
     plugins: {
       dirs: Array.isArray(merged.plugins?.dirs) ? merged.plugins.dirs.filter((d) => typeof d === "string") : [],

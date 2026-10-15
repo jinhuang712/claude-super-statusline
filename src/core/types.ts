@@ -112,6 +112,11 @@ export interface PluginsConfig {
   trustedProjects: string[];
 }
 
+/** The layout the Claude Code mod draws in the desktop app. Only the widgets in DESKTOP_WIDGETS can run there. */
+export interface DesktopConfig {
+  lines: LineConfig[];
+}
+
 export interface FooterConfig {
   $schema?: string;
   /** 1 or 2; files still at 1 are migrated as they are read (config.ts migrateGitBranchParts). */
@@ -132,6 +137,8 @@ export interface FooterConfig {
    */
   emptyText: string;
   lines: LineConfig[];
+  /** The desktop app's band above the prompt, drawn by the mod (src/core/desktop.ts); separate from `lines`. */
+  desktop: DesktopConfig;
   git: GitConfig;
   plugins: PluginsConfig;
   /** Persist the last stdin payload per session for the web preview. */
