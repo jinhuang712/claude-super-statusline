@@ -1,3 +1,6 @@
 [test]
 # Redirect every writable directory to a temp root before any test runs (see tests/setup.ts).
 preload = ["./tests/setup.ts"]
+# hooks/*.test.ts import the mod test kit ("claude-code/testing"), which only `claude plugin test` provides;
+# scripts/test-mod.sh runs them.
+pathIgnorePatterns = ["hooks/**"]
