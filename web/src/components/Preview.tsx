@@ -3,6 +3,7 @@ import { Terminal } from "@xterm/xterm";
 import { useEffect, useId, useRef, useState } from "react";
 import { useT } from "../i18n";
 import { linesOf, useStore } from "../store";
+import { SurfaceSwitch } from "./SurfaceSwitch";
 import { parseAnsi } from "./Ansi";
 import { Icon } from "./Icon";
 import { Popover } from "./Popover";
@@ -349,6 +350,7 @@ export function Preview() {
       */}
       <div className="term-bar">
         <span className="term-title">{t.preview.title}</span>
+        <SurfaceSwitch />
         {/*
           "Trying on: …", in the label row so hovering never changes the preview's height (a height
           change is what made hover previews loop; see the hold above).

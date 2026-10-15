@@ -141,7 +141,7 @@ prompt, drawn by the same widget code, on the desktop app and in the terminal al
 * **What it shows** — by default one row: short 5-hour and weekly rate-limit bars with their reset times on the left, the prompt-cache hit
   ratio, output speed and session cost on the right. The model, context and project are left out because the desktop
   app already shows them; tokens used and the rest are one click away in the panel.
-* **Design it in the panel** — *Layout → Desktop app* edits the band's own layout (saved as `desktop.lines`, apart
+* **Design it in the panel** — the *Terminal | Desktop app* switch beside the preview edits the band's own layout (saved as `desktop.lines`, apart
   from the terminal's `lines`) with the same drag and drop, from the six widgets a mod can draw: rate-limit windows
   (all or one), session cost, prompt cache, session tokens and output speed. The mod re-reads the file as it changes.
   The preview draws it as text; the app itself draws the bars as coloured blocks.

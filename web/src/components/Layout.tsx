@@ -16,7 +16,7 @@ import type { LineConfig, WidgetInstance, Zone } from "../api";
 import { CAT_COLOR } from "../colors";
 import { collision, TRAY_DROP_ID, TRAY_PREFIX, ZONE_PREFIX } from "../collision";
 import { useT, widgetName } from "../i18n";
-import { emptyStateAt, hasCenter, layoutMode, linesOf, useStore, widgetAt, type Surface } from "../store";
+import { emptyStateAt, hasCenter, layoutMode, linesOf, useStore, widgetAt } from "../store";
 import { Icon } from "./Icon";
 import { OptionsPanel } from "./Options";
 import { LayoutModes } from "./LayoutModes";
@@ -334,26 +334,6 @@ function widgetOfDragId(id: string): string {
   return id.startsWith(TRAY_PREFIX) ? id.slice(TRAY_PREFIX.length) : id.split("#")[0]!;
 }
 
-/**
- * Which layout is being edited: the terminal statusline, or the desktop app's band (drawn by the
- * mod). The desktop has no statusLine, so it gets its own lines; the choice only moves the editor.
- */
-function SurfaceSwitch() {
-  const t = useT();
-  const surface = useStore((s) => s.surface);
-  const setSurface = useStore((s) => s.setSurface);
-  const options: Surface[] = ["terminal", "desktop"];
-  return (
-    <span className="seg" role="group" aria-label={t.layout.surface}>
-      {options.map((o) => (
-        <button key={o} type="button" aria-pressed={surface === o} onClick={() => setSurface(o)}>
-          {t.layout.surfaces[o]}
-        </button>
-      ))}
-    </span>
-  );
-}
-
 export function Layout() {
   const t = useT();
   const config = useStore((s) => s.config)!;
@@ -428,7 +408,6 @@ export function Layout() {
         <h2 id="layout-title" className="h2">
           {t.layout.title}
         </h2>
-        <SurfaceSwitch />
       </div>
       {surface === "terminal" && <LayoutModes />}
       <p className="sr-only" aria-live="polite">

@@ -719,6 +719,19 @@ input[type="checkbox"] {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+/* The surface switch beside the title: its labels stay on one line, and the controls give way before it does. */
+.term-bar .seg {
+  flex: none;
+}
+.term-bar .seg > button {
+  white-space: nowrap;
+}
+/* Below ~360px the title, the switch and the settings button fill the row; the column count (also in the settings) gives way. */
+@media (max-width: 359px) {
+  .term-bar .meta {
+    display: none;
+  }
+}
 /* "Trying on: … — click to apply". Cut short before it can push the controls to a second row. */
 .term-tryon {
   min-width: 0;

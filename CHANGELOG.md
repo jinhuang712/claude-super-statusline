@@ -6,7 +6,7 @@ Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace 
 
 - **A band above the prompt for the desktop app.** The plugin is now also a Claude Code mod: rate-limit bars, session
   cost, prompt-cache hit ratio, tokens and output speed, drawn above the prompt in the desktop app and the terminal.
-  The CLI statusline is unchanged. *Layout → Desktop app* in the panel designs the band: its own `desktop.lines`,
+  The CLI statusline is unchanged. The *Terminal | Desktop app* switch beside the preview designs the band: its own `desktop.lines`,
   drag and drop, with the widgets a mod can draw.
 
 ## 0.5.3 — 2026-09-29
