@@ -99,13 +99,13 @@ export interface GitConfig {
 /**
  * Widget plugins are code: loading one runs it with the user's privileges on every statusline tick.
  * So only the user decides where plugins come from — this whole block is read from the user config
- * layer, never from a project's `.claude/claude-code-super-statusline.json` (see loadEffectiveConfig).
+ * layer, never from a project's `.claude/claude-super-statusline.json` (see loadEffectiveConfig).
  */
 export interface PluginsConfig {
   /** Extra directories scanned for widget modules. */
   dirs: string[];
   /**
-   * Projects whose own `.claude/claude-code-super-statusline/widgets/` may load. A repo you just cloned is not in
+   * Projects whose own `.claude/claude-super-statusline/widgets/` may load. A repo you just cloned is not in
    * here, so opening it in Claude Code can't make the statusline run its code. Absolute paths; a
    * project counts as trusted when its directory is one of these or inside one.
    */

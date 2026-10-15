@@ -3,7 +3,7 @@
  * widget definition (or an array of them). Load failures are collected, never thrown.
  *
  * Trust model: a plugin is code that runs on every statusline tick. The user's own widgets dir and
- * the dirs listed in the *user* config always load. A project's `.claude/claude-code-super-statusline/widgets/`
+ * the dirs listed in the *user* config always load. A project's `.claude/claude-super-statusline/widgets/`
  * loads only when the project is listed in `plugins.trustedProjects` — otherwise cloning a repo and
  * opening it in Claude Code would execute whatever that repo ships. (Project config files can't set
  * `plugins` at all; loadEffectiveConfig drops it.)
@@ -26,7 +26,7 @@ export interface PluginLoadReport {
 }
 
 /**
- * Where a project keeps its own widgets: `.claude/claude-code-super-statusline/widgets/`, or the
+ * Where a project keeps its own widgets: `.claude/claude-super-statusline/widgets/`, or the
  * pre-0.4.0 `.claude/claude-code-ssp/widgets/` if that is the one it has. Either way the trust rule
  * below applies to it.
  */

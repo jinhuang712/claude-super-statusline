@@ -12,7 +12,7 @@ const KEYS = ["HOME", "CLAUDE_CONFIG_DIR", "XDG_CONFIG_HOME", "CLAUDE_SUPER_STAT
 
 export interface Sandbox {
   root: string;
-  /** Claude Code's config dir inside the sandbox (settings.json, plugins/claude-code-super-statusline/samples). */
+  /** Claude Code's config dir inside the sandbox (settings.json, plugins/claude-super-statusline/samples). */
   claudeDir: string;
   /** Our user config file inside the sandbox. */
   userConfig: string;

@@ -1,5 +1,5 @@
 {
-  "name": "claude-code-super-statusline",
+  "name": "claude-super-statusline",
   "version": "0.5.3",
   "description": "Claude Code statusline with a localhost web configurator, widget registry and user plugins",
   "private": true,

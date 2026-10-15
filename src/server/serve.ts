@@ -93,7 +93,7 @@ function canonicalDir(dir: string): string {
 
 /**
  * `?cwd=` picks which project's config layer the API reads and writes. Left open, any caller could
- * make us read — or, through a project-scope save, write — `.claude/claude-code-super-statusline.json` in an
+ * make us read — or, through a project-scope save, write — `.claude/claude-super-statusline.json` in an
  * arbitrary directory. So it may only name the directory the server runs in or the project of a
  * session Claude Code has actually rendered a statusline for (a captured sample).
  */
@@ -409,7 +409,7 @@ export async function serve(opts: { port: number; open?: boolean; sandbox?: bool
     fetch: (req, srv) => handleRequest(req, srv.port ?? opts.port),
   });
   const address = `http://127.0.0.1:${server.port}`;
-  console.log(`claude-code-super-statusline configurator → ${address}`);
+  console.log(`claude-super-statusline configurator → ${address}`);
   if (plugins.errors.length) for (const e of plugins.errors) console.error(`plugin error ${e.file}: ${e.message}`);
   for (const s of plugins.skipped) console.error(`plugin dir skipped ${s.dir}: ${s.reason}`);
   if (opts.open) openBrowser(address);

@@ -132,7 +132,7 @@ export function launcherCommand(entry: string, bun = stableBunPath()): string {
     // Newest version dir that actually has our entry point; `sort -V` orders 0.10.0 after 0.9.0.
     `d=$(for x in ${dq(base)}/*/; do [ -f "\${x}src/cli/main.ts" ] && echo "$x"; done | sort -V | tail -n 1)`,
     // Print something instead of failing silently if the plugin was removed without uninstalling.
-    `[ -n "$d" ] || { echo "claude-code-super-statusline: plugin files not found — run /plugin to reinstall"; exit 0; }`,
+    `[ -n "$d" ] || { echo "claude-super-statusline: plugin files not found — run /plugin to reinstall"; exit 0; }`,
     `exec ${dq(bun)} "\${d}src/cli/main.ts" render`,
   ].join("; ");
   return `sh -c ${sq(script)}`;
@@ -209,7 +209,7 @@ export function planInstall(opts: InstallOptions = {}): InstallPlan {
 /** Thrown when install would replace a statusLine that isn't ours and the caller didn't confirm. */
 export class NeedsConfirmError extends Error {
   constructor(readonly current: unknown) {
-    super("settings.json already has a statusLine that isn't claude-code-super-statusline's; confirm to replace it (it is kept for uninstall)");
+    super("settings.json already has a statusLine that isn't claude-super-statusline's; confirm to replace it (it is kept for uninstall)");
   }
 }
 
@@ -296,7 +296,7 @@ export function setRefreshInterval(seconds: number | null): RefreshIntervalResul
   const file = settingsPath();
   const settings = readSettings(file);
   const current = settings.statusLine;
-  if (!isOurStatusLine(current) || !isPlainObject(current)) throw new RefreshIntervalError("the statusline in settings.json is not claude-code-super-statusline's; apply it first");
+  if (!isOurStatusLine(current) || !isPlainObject(current)) throw new RefreshIntervalError("the statusline in settings.json is not claude-super-statusline's; apply it first");
   const before = typeof current.refreshInterval === "number" ? current.refreshInterval : null;
   if (before === seconds) return { settingsFile: file, backup: null, refreshInterval: seconds, unchanged: true };
   const next: Record<string, unknown> = { ...current };

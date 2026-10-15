@@ -39,7 +39,7 @@ describe("render budget", () => {
     const runs = Array.from({ length: 7 }, run);
     for (const r of runs) {
       expect(r.code).toBe(0);
-      expect(r.out).not.toContain("[claude-code-super-statusline] error");
+      expect(r.out).not.toContain("[claude-super-statusline] error");
       expect(r.out.trim().split("\n").length).toBeGreaterThanOrEqual(2);
     }
     const median = runs.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(runs.length / 2)]!;

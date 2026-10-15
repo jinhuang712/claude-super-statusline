@@ -1,6 +1,6 @@
 /**
- * Example user widget. Copy this file to ~/.config/claude-code-super-statusline/widgets/ (or <project>/.claude/claude-code-super-statusline/widgets/),
- * restart `claude-code-super-statusline serve`, and it appears in the picker under "misc".
+ * Example user widget. Copy this file to ~/.config/claude-super-statusline/widgets/ (or <project>/.claude/claude-super-statusline/widgets/),
+ * restart `claude-super-statusline serve`, and it appears in the picker under "misc".
  *
  * A widget module's default export is one definition or an array of them. `render` must be fast and pure:
  * it runs on every statusline refresh. Throwing is safe — the line shows a dim "⚠ id" instead of blanking.

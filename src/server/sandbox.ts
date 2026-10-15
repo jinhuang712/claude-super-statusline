@@ -51,7 +51,7 @@ export function enterServeSandbox(): { root: string; seeded: string[] } {
   // pre-0.4.0 folder to its new name: the real files are only read here.
   freezeLegacyDirs();
   const real = { samples: samplesDir(), userConfig: userConfigPath(), settings: settingsPath() };
-  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "claude-code-super-statusline-sandbox-")));
+  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "claude-super-statusline-sandbox-")));
   const claudeDir = path.join(root, "claude");
   const seeded: string[] = [];
 

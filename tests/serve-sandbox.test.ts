@@ -51,7 +51,7 @@ describe("serve --sandbox", () => {
     const health = (await (await fetch(`${BASE}/api/health`)).json()) as { sandbox: boolean };
     expect(health.sandbox).toBe(true);
     const { paths } = (await (await fetch(`${BASE}/api/config`)).json()) as { paths: Record<string, string> };
-    for (const p of Object.values(paths)) expect(p).toContain("claude-code-super-statusline-sandbox-");
+    for (const p of Object.values(paths)) expect(p).toContain("claude-super-statusline-sandbox-");
   });
 
   test("it starts from copies of the real config and samples", async () => {

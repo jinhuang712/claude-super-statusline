@@ -87,7 +87,7 @@ function PreviewSettings() {
   const ms = useStore((s) => s.preview?.ms);
   const c = useStore((s) => s.config!);
   const setConfig = useStore((s) => s.setConfig);
-  const samplesDir = useStore((s) => s.paths?.samples) ?? "~/.claude/plugins/claude-code-super-statusline/samples";
+  const samplesDir = useStore((s) => s.paths?.samples) ?? "~/.claude/plugins/claude-super-statusline/samples";
   const termBg = useTheme((s) => s.termBg);
   const setTermBg = useTheme((s) => s.setTermBg);
   const widthId = useId();

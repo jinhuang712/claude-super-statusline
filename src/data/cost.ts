@@ -107,7 +107,7 @@ export function estimateSessionCost(
     return null;
   }
 
-  // claude-code-super-statusline: same routed check as the provider label (env switch or model id).
+  // claude-super-statusline: same routed check as the provider label (env switch or model id).
   if (!options?.allowRoutedCost && routedProvider(stdin)) {
     return null;
   }

@@ -12,7 +12,7 @@ export async function doctor(): Promise<void> {
   registerBuiltinWidgets();
   const cwd = process.cwd();
   const { config, layers } = loadEffectiveConfig(cwd);
-  console.log("# claude-code-super-statusline doctor\n");
+  console.log("# claude-super-statusline doctor\n");
   console.log("## Config layers");
   for (const l of layers) console.log(`- ${l.name}: ${l.path ?? "(built-in)"} ${l.exists ? "✓" : "✗ missing"}${l.error ? ` — ERROR ${l.error}` : ""}`);
   console.log(`\n## Plugins`);

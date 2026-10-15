@@ -341,7 +341,7 @@ export function isEnterpriseModelId(modelId?: string): boolean {
 }
 
 /**
- * claude-code-super-statusline: which cloud a session is routed through, from either signal Claude Code gives —
+ * claude-super-statusline: which cloud a session is routed through, from either signal Claude Code gives —
  * the CLAUDE_CODE_USE_* switch or the model id format. The provider label and the cost widget used
  * to check different signals, so with a Bedrock alias id the badge said "Bedrock" while the cost
  * (which reads $0 / is unreliable on routed billing) still showed.

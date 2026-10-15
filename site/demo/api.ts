@@ -36,7 +36,7 @@ const BASE = revive(demo.ctx) as BaseCtx;
 const SAMPLE = demo.sample;
 
 const STORE_KEY = "ssp.demo.config";
-const USER_PATH = "~/.config/claude-code-super-statusline/config.json";
+const USER_PATH = "~/.config/claude-super-statusline/config.json";
 
 // localStorage can throw (blocked storage, private mode): the demo then simply forgets on reload.
 function loadLayer(): Partial<FooterConfig> | null {
@@ -71,9 +71,9 @@ function effective() {
     layers: [
       { name: "defaults", path: null, exists: true, value: DEFAULT_CONFIG },
       { name: "user", path: USER_PATH, exists: user !== null, value: user },
-      { name: "project", path: `${SAMPLE.cwd}/.claude/claude-code-super-statusline.json`, exists: false, value: null },
+      { name: "project", path: `${SAMPLE.cwd}/.claude/claude-super-statusline.json`, exists: false, value: null },
     ],
-    paths: { user: USER_PATH, project: `${SAMPLE.cwd}/.claude/claude-code-super-statusline.json`, samples: "(demo)", dataDir: "(demo)" },
+    paths: { user: USER_PATH, project: `${SAMPLE.cwd}/.claude/claude-super-statusline.json`, samples: "(demo)", dataDir: "(demo)" },
   };
 }
 

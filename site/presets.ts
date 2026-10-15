@@ -143,7 +143,7 @@ const groups = (["minimal", "standard", "full"] as const).map((id) => {
 });
 // One terminal, all three presets (hero option B): each group is a labelled render at `columns`.
 process.stdout.write(`<div class="lp-term" role="img" aria-label="The three presets rendered on a sample session: Minimal on one line, Standard on two, Full on four" data-i18n-aria="term.aria">
-<div class="lp-term-bar" aria-hidden="true"><span data-i18n="term.bar">three presets · one session</span><span class="lp-desk">~/dev/claude-code-super-statusline — claude</span><span class="lp-phone" data-i18n="term.swipe">swipe →</span></div>
+<div class="lp-term-bar" aria-hidden="true"><span data-i18n="term.bar">three presets · one session</span><span class="lp-desk">~/dev/claude-super-statusline — claude</span><span class="lp-phone" data-i18n="term.swipe">swipe →</span></div>
 <div class="lp-term-body">
 ${groups.join("\n")}
 </div>

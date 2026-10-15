@@ -10,7 +10,7 @@
 ### With the install script
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-code-super-statusline/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-super-statusline/main/install.sh | bash
 ```
 
 It checks your Claude Code version and that Bun is installed (and offers to install Bun if it isn't), then adds
@@ -23,7 +23,7 @@ Then, in Claude Code, run `/super-statusline:config` and pick a layout.
 
 1. Add the marketplace:
    ```bash
-   claude plugin marketplace add jinhuang712/claude-code-super-statusline
+   claude plugin marketplace add jinhuang712/claude-super-statusline
    ```
 2. Install the plugin:
    ```bash
@@ -63,8 +63,8 @@ The page asks before replacing it. To go back later, open the page and choose
 ## Install from a local checkout
 
 ```bash
-git clone https://github.com/jinhuang712/claude-code-super-statusline
-cd claude-code-super-statusline
+git clone https://github.com/jinhuang712/claude-super-statusline
+cd claude-super-statusline
 bun install
 claude plugin marketplace add "$PWD"
 claude plugin install super-statusline@claude-code-super-statusline

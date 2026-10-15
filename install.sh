@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install or update super-statusline for Claude Code.
 #
-#   curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-code-super-statusline/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-super-statusline/main/install.sh | bash
 #   bash install.sh [--yes]          from a checkout
 #
 # Safe to run again at any time: a first run adds the marketplace and installs the plugin; later
@@ -16,7 +16,7 @@
 # URL or a local path), e.g. a fork, or a checkout: SUPER_STATUSLINE_SOURCE="$PWD" bash install.sh
 set -euo pipefail
 
-SOURCE="${SUPER_STATUSLINE_SOURCE:-jinhuang712/claude-code-super-statusline}"
+SOURCE="${SUPER_STATUSLINE_SOURCE:-jinhuang712/claude-super-statusline}"
 MARKETPLACE="claude-code-super-statusline"
 PLUGIN="super-statusline@${MARKETPLACE}"
 LEGACY_PLUGIN="ssp@claude-code-ssp"
@@ -78,7 +78,7 @@ version_ge() {
 case "$(uname -s 2>/dev/null || echo unknown)" in
   MINGW* | MSYS* | CYGWIN*)
     fail "this script is for macOS and Linux." \
-      "On Windows, see https://github.com/jinhuang712/claude-code-super-statusline/blob/main/INSTALL.md"
+      "On Windows, see https://github.com/jinhuang712/claude-super-statusline/blob/main/INSTALL.md"
     ;;
 esac
 

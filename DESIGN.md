@@ -1,4 +1,4 @@
-# claude-code-super-statusline — Design
+# claude-super-statusline — Design
 
 A Claude Code statusline that is configured from a **localhost web UI**, built around a
 **widget registry** and **user plugins**, with a **zone-based layout** (left / center / right per line).
@@ -18,12 +18,12 @@ Claude Code ≥ 2.1.251 now ships `rate_limits`, `prompt_cache`, `effort`, `cost
 
 | Command | Purpose |
 |---|---|
-| `claude-code-super-statusline render` | stdin JSON → ANSI lines on stdout. Hot path. Imports only `core` + `widgets` + `data`. |
-| `claude-code-super-statusline serve [--port 4877] [--open]` | Bun.serve on 127.0.0.1 serving `web/dist` + JSON API. Lazy-imported. |
-| `claude-code-super-statusline serve --sandbox` | Same on `:4878` against temp copies of config, samples and statusLine (for UI work and automation). |
-| `claude-code-super-statusline install [--replace]` / `uninstall` | Atomic merge into `~/.claude/settings.json` (`.bak.<ts>` backup). Replacing a statusLine that isn't ours needs `--replace` (the panel asks); it is parked under `statusLine.previous.claude-code-super-statusline` (`…claude-code-ssp` before 0.4.0: still read, moved on the next install) and `uninstall` restores it. `uninstall` never touches a statusLine that isn't ours. |
-| `claude-code-super-statusline reset [--session ID]` | Baseline the session counters (default: the most recent session; the panel passes the one it previews). |
-| `claude-code-super-statusline doctor` | Shows effective config, layer provenance, last captured payload, render timing. |
+| `claude-super-statusline render` | stdin JSON → ANSI lines on stdout. Hot path. Imports only `core` + `widgets` + `data`. |
+| `claude-super-statusline serve [--port 4877] [--open]` | Bun.serve on 127.0.0.1 serving `web/dist` + JSON API. Lazy-imported. |
+| `claude-super-statusline serve --sandbox` | Same on `:4878` against temp copies of config, samples and statusLine (for UI work and automation). |
+| `claude-super-statusline install [--replace]` / `uninstall` | Atomic merge into `~/.claude/settings.json` (`.bak.<ts>` backup). Replacing a statusLine that isn't ours needs `--replace` (the panel asks); it is parked under `statusLine.previous.claude-super-statusline` (`…claude-code-ssp` before 0.4.0: still read, moved on the next install) and `uninstall` restores it. `uninstall` never touches a statusLine that isn't ours. |
+| `claude-super-statusline reset [--session ID]` | Baseline the session counters (default: the most recent session; the panel passes the one it previews). |
+| `claude-super-statusline doctor` | Shows effective config, layer provenance, last captured payload, render timing. |
 
 ## Layout model
 
@@ -93,7 +93,7 @@ any widget used it (`liftLegacyColorMode`, config.ts).
 
 ## Plugins
 
-`~/.config/claude-code-super-statusline/widgets/*.{js,ts,mjs}` and `<project>/.claude/claude-code-super-statusline/widgets/*`
+`~/.config/claude-super-statusline/widgets/*.{js,ts,mjs}` and `<project>/.claude/claude-super-statusline/widgets/*`
 (or a project's pre-0.4.0 `.claude/claude-code-ssp/widgets/`, under the same trust rule) are dynamically
 imported; each module's default export is a widget definition or an array of them. A plugin that throws at load or at
 render time is replaced by a dim `⚠ <id>` segment — a broken plugin never blanks the statusline.
@@ -104,7 +104,7 @@ you just cloned can't trust itself or point at other folders). Skipped folders a
 
 ## Config layering
 
-`defaults` → `~/.config/claude-code-super-statusline/config.json` (or `$CLAUDE_CODE_SUPER_STATUSLINE_CONFIG`) → `<cwd>/.claude/claude-code-super-statusline.json`.
+`defaults` → `~/.config/claude-super-statusline/config.json` (or `$CLAUDE_SUPER_STATUSLINE_CONFIG`) → `<cwd>/.claude/claude-super-statusline.json`.
 A project that only has the pre-0.4.0 `.claude/claude-code-ssp.json` reads and saves that one (`newOrLegacy`): project
 files may be committed, so they are never moved.
 Objects deep-merge; `lines` replaces wholesale. The web UI shows which layer set each value and lets you edit either.
@@ -198,7 +198,7 @@ Claude Code debounces at 300 ms and kills in-flight scripts. Target **< 40 ms wa
 
 ## Data root
 
-`$CLAUDE_CONFIG_DIR/plugins/claude-code-super-statusline/` (defaults to `~/.claude/plugins/claude-code-super-statusline/`):
+`$CLAUDE_CONFIG_DIR/plugins/claude-super-statusline/` (defaults to `~/.claude/plugins/claude-super-statusline/`):
 transcript-cache, context-cache, config-cache, samples. Files 0600, dirs 0700, temp+rename writes (inherited conventions).
 
 **Folders from before 0.4.0** (`claude-code-ssp`, for this data root and for `~/.config/…`) are moved to the new name the

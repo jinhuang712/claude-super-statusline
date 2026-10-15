@@ -26,7 +26,7 @@ export function getClaudeConfigJsonPath(homeDir: string): string {
 /**
  * Data/cache root (samples, counter resets, caches). Lives next to Claude Code's own config so
  * multi-account setups ($CLAUDE_CONFIG_DIR) get isolated caches automatically. A folder from an
- * earlier name (`plugins/claude-code-super-statusline`, `plugins/claude-code-ssp`) is moved here on
+ * earlier name (`plugins/claude-super-statusline`, `plugins/claude-code-ssp`) is moved here on
  * first use (see adoptLegacyDir).
  */
 export function getHudPluginDir(homeDir: string): string {

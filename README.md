@@ -10,13 +10,13 @@
   <img alt="The three presets. Minimal: project, branch, model, context. Standard: adds rate-limit usage. Full: adds the diff, prompt cache, tokens and output speed" src="docs/images/presets-dark.png">
 </picture>
 
-<p align="center"><b><a href="https://jinhuang712.github.io/claude-code-super-statusline/">Try the configurator in your browser →</a></b><br>
+<p align="center"><b><a href="https://jinhuang712.github.io/claude-super-statusline/">Try the configurator in your browser →</a></b><br>
 the real one, running on a sample session</p>
 
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-code-super-statusline/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-super-statusline/main/install.sh | bash
 ```
 
 Then run `/super-statusline:config` in Claude Code and pick a layout. The script checks for [Bun](https://bun.sh)

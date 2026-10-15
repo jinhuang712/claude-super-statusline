@@ -67,7 +67,7 @@ describe("install.sh", () => {
   test("a first run adds the marketplace, installs the plugin, and says what to do next", () => {
     const r = run();
     expect(r.code).toBe(0);
-    expect(changes(r.calls)).toEqual(["plugin marketplace add jinhuang712/claude-code-super-statusline", "plugin install super-statusline@claude-code-super-statusline"]);
+    expect(changes(r.calls)).toEqual(["plugin marketplace add jinhuang712/claude-super-statusline", "plugin install super-statusline@claude-code-super-statusline"]);
     expect(r.out).toContain("/super-statusline:config");
   });
 

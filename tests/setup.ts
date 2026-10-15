@@ -1,7 +1,7 @@
 /**
  * Test preload (wired up in bunfig.toml): points every directory the code can write to at a
  * throwaway temp root BEFORE any test module runs, so `bun test` can never touch the developer's
- * real ~/.claude (samples, caches, reset baselines, settings.json) or ~/.config/claude-code-super-statusline
+ * real ~/.claude (samples, caches, reset baselines, settings.json) or ~/.config/claude-super-statusline
  * (nor move a pre-0.4.0 ~/.config/claude-code-ssp to that name).
  *
  * Why these variables and not just HOME: Bun caches `os.homedir()` at startup, so changing HOME

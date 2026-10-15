@@ -55,7 +55,7 @@ function writeHydrated(src: string, out: string, now: number): boolean {
  * stores subagent transcripts (see src/core/subagents.ts), so their usage shows in the samples too.
  */
 function materializeTranscript(src: string, now: number): string | null {
-  const dir = path.join(os.tmpdir(), "claude-code-super-statusline-fixtures");
+  const dir = path.join(os.tmpdir(), "claude-super-statusline-fixtures");
   const out = path.join(dir, path.basename(src));
   try {
     if (now - fs.statSync(out).mtimeMs < REFRESH_MS) return out;

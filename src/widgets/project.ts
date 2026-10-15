@@ -19,7 +19,7 @@ export const projectPath = defineWidget<{ dir: "current" | "launch"; levels: "1"
   name: "Project path",
   description: "Working directory, as basename, N trailing segments, ~-relative or full path.",
   category: "project",
-  sample: "~/dev/claude-code-super-statusline",
+  sample: "~/dev/claude-super-statusline",
   schema: {
     type: "object",
     properties: {

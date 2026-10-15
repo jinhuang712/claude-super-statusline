@@ -5,7 +5,7 @@ import { useStore } from "../store";
 import { Drawer } from "./Drawer";
 
 /**
- * A skipped project widget folder `<root>/.claude/claude-code-super-statusline/widgets` → its project
+ * A skipped project widget folder `<root>/.claude/claude-super-statusline/widgets` → its project
  * root. `claude-code-ssp` is the folder's pre-0.4.0 name, still loaded where a project has it.
  */
 function projectRootOf(dir: string): string {
@@ -126,7 +126,7 @@ export function Diagnostics({ onClose }: { onClose: () => void }) {
         </details>
         <p className="hint">
           {pluginsA}
-          <code className="mono">~/.config/claude-code-super-statusline/widgets/</code>
+          <code className="mono">~/.config/claude-super-statusline/widgets/</code>
           {pluginsB}
         </p>
       </div>

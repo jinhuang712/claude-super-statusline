@@ -204,7 +204,7 @@ function HeaderMenu({ close, openDiagnostics }: { close: () => void; openDiagnos
         {project?.exists ? t.header.overwriteProject : t.header.saveAsProject}
         {/* The file name is the same in every language (it is a path), so it isn't a locale string. Taken
             from the server's path: a project that still has the pre-0.4.0 claude-code-ssp.json saves there. */}
-        <span className="hint mono">.claude/{project?.path?.split(/[\\/]/).pop() ?? "claude-code-super-statusline.json"}</span>
+        <span className="hint mono">.claude/{project?.path?.split(/[\\/]/).pop() ?? "claude-super-statusline.json"}</span>
       </button>
       {/* Only our own entry can be retimed; before Apply there is nothing in settings.json to change. */}
       {s.installed === true && <RefreshItem />}
@@ -214,7 +214,7 @@ function HeaderMenu({ close, openDiagnostics }: { close: () => void; openDiagnos
       {s.installed === true && <RestoreItem close={close} />}
         </>
       )}
-      <a className="menu-item menu-link" href="https://github.com/jinhuang712/claude-code-super-statusline" target="_blank" rel="noreferrer">
+      <a className="menu-item menu-link" href="https://github.com/jinhuang712/claude-super-statusline" target="_blank" rel="noreferrer">
         <span className="inline-flex items-center gap-1.5">
           {t.prefs.source}
           <Icon name="external" size={13} />

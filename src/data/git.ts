@@ -22,7 +22,7 @@ export interface FileStats {
   deleted: number;
   untracked: number;
   /**
-   * claude-code-super-statusline: the renames and copies inside `modified`, for git.linesChanged's
+   * claude-super-statusline: the renames and copies inside `modified`, for git.linesChanged's
    * file breakdown. Optional because a status cached by an older version doesn't carry it.
    */
   renamed?: number;
@@ -66,7 +66,7 @@ export async function getGitStatus(cwd?: string): Promise<GitStatus | null> {
     runner = createGitRunner(cwd);
     const git = runner;
     /*
-      claude-code-super-statusline: none of these commands needs another one's output, so where the runner allows
+      claude-super-statusline: none of these commands needs another one's output, so where the runner allows
       it they are all started at once — five sequential ~10 ms git spawns (much more on a big or
       network repo) were the largest part of a cache-miss render. `diff --numstat` is started
       speculatively even before we know the tree is dirty: on a clean tree it is cheap and its output

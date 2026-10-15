@@ -23,12 +23,12 @@ const BUILD = path.join(SITE, ".build");
 /** Where the sample session claims to live; node-shims.ts reports the same home to the widgets. */
 const DEMO_HOME = "/Users/you";
 /** The sample session is spent on this very project, so the page shows super-statusline working on itself. */
-const DEMO_NAME = "claude-code-super-statusline";
+const DEMO_NAME = "claude-super-statusline";
 const DEMO_OWNER = "jinhuang712";
 const DEMO_PROJECT = `${DEMO_HOME}/dev/${DEMO_NAME}`;
 /**
  * Width the presets are laid out at on the welcome page: a common terminal, and it fits the hero.
- * At 100 the Full preset's second line (the 40-character jinhuang712/claude-code-super-statusline,
+ * At 100 the Full preset's second line (the 40-character jinhuang712/claude-super-statusline,
  * branch, file counts, diff, and context on the right) no longer fits, and the engine cuts the diff;
  * 120 leaves every line whole with room to spare. site/landing.ts scales the font to the terminal.
  */
@@ -67,7 +67,7 @@ function demoRepo(): string {
 
 /**
  * The precomputed data context, written for the demo and the presets (Dates as { $date }, temp
- * paths rewritten to ~/dev/claude-code-super-statusline). Returns the file it wrote.
+ * paths rewritten to ~/dev/claude-super-statusline). Returns the file it wrote.
  */
 async function demoContext(): Promise<string> {
   // Imported after HOME is set: some modules resolve their directories on first use.
@@ -94,7 +94,7 @@ async function demoContext(): Promise<string> {
       return raw instanceof Date ? { $date: raw.toISOString() } : value;
     },
   )
-    // The session "happened" in ~/dev/claude-code-super-statusline, not in this machine's temp dir.
+    // The session "happened" in ~/dev/claude-super-statusline, not in this machine's temp dir.
     .split(repo).join(DEMO_PROJECT)
     .split(fixtureProject).join(DEMO_PROJECT)
     .split(tmp).join(DEMO_HOME)

@@ -247,7 +247,7 @@ export function writeUserConfig(config: Partial<FooterConfig>, env: NodeJS.Proce
   const target = userConfigPath(env);
   fs.mkdirSync(path.dirname(target), { recursive: true, mode: 0o700 });
   const tmp = `${target}.${process.pid}.${Date.now()}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify({ $schema: "https://github.com/jinhuang712/claude-code-super-statusline/schema/config.json", ...config }, null, 2) + "\n", { mode: 0o600 });
+  fs.writeFileSync(tmp, JSON.stringify({ $schema: "https://github.com/jinhuang712/claude-super-statusline/schema/config.json", ...config }, null, 2) + "\n", { mode: 0o600 });
   fs.renameSync(tmp, target);
   return target;
 }

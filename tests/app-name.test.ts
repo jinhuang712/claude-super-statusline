@@ -70,7 +70,7 @@ describe("the folders we own adopt their old names", () => {
     process.env.CLAUDE_CONFIG_DIR = saved;
   });
 
-  test("data folder: $CLAUDE_CONFIG_DIR/plugins/claude-code-ssp → claude-code-super-statusline", () => {
+  test("data folder: $CLAUDE_CONFIG_DIR/plugins/claude-code-super-statusline → claude-super-statusline", () => {
     const claude = temp();
     fs.mkdirSync(path.join(claude, "plugins", LEGACY_APP_NAME, "samples"), { recursive: true });
     process.env.CLAUDE_CONFIG_DIR = claude;
@@ -79,7 +79,7 @@ describe("the folders we own adopt their old names", () => {
     expect(fs.existsSync(path.join(claude, "plugins", LEGACY_APP_NAME))).toBe(false);
   });
 
-  test("user folder: ~/.config/claude-code-ssp → claude-code-super-statusline", () => {
+  test("user folder: ~/.config/claude-code-super-statusline → claude-super-statusline", () => {
     const xdg = temp();
     fs.mkdirSync(path.join(xdg, LEGACY_APP_NAME, "widgets"), { recursive: true });
     fs.writeFileSync(path.join(xdg, LEGACY_APP_NAME, "config.json"), '{"separator":" | "}');

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * claude-code-super-statusline CLI. The `render` path must stay lean: no server or UI imports here.
+ * claude-super-statusline CLI. The `render` path must stay lean: no server or UI imports here.
  */
 import { captureSample } from "../core/capture.js";
 import { prepareFixture } from "../core/fixtures.js";
@@ -25,7 +25,7 @@ async function cmdRender(argv: string[]): Promise<void> {
   // A fixture gets live-looking times and its bundled sample transcript (src/core/fixtures.ts).
   let stdin = fixture ? prepareFixture(JSON.parse(await Bun.file(fixture).text()) as Awaited<ReturnType<typeof readStdin>>, fixture) : await readStdin();
   if (!stdin) {
-    console.log("claude-code-super-statusline: waiting for Claude Code statusline JSON on stdin (or pass --fixture <file>)");
+    console.log("claude-super-statusline: waiting for Claude Code statusline JSON on stdin (or pass --fixture <file>)");
     return;
   }
   const cwd = stdin!.workspace?.current_dir ?? stdin!.cwd;
@@ -44,7 +44,7 @@ async function cmdRender(argv: string[]): Promise<void> {
   await writeFully(process.stdout, result.lines.map((line) => `${guardLeadingSpace(line)}\n`).join(""));
   // CLAUDE_CODE_SUPER_STATUSLINE_DEBUG is the name before the rename; still honoured.
   if (process.env.CLAUDE_SUPER_STATUSLINE_DEBUG || process.env.CLAUDE_CODE_SUPER_STATUSLINE_DEBUG) {
-    const debug = [`[claude-code-super-statusline] render ${result.ms.toFixed(1)}ms total ${(performance.now() - started).toFixed(1)}ms`, ...result.errors.map((e) => `[claude-code-super-statusline] ${e.widget}: ${e.message}`)];
+    const debug = [`[claude-super-statusline] render ${result.ms.toFixed(1)}ms total ${(performance.now() - started).toFixed(1)}ms`, ...result.errors.map((e) => `[claude-super-statusline] ${e.widget}: ${e.message}`)];
     await writeFully(process.stderr, debug.map((l) => `${l}\n`).join(""));
   }
 }
@@ -87,7 +87,7 @@ async function main(): Promise<void> {
         if (!(err instanceof NeedsConfirmError)) throw err;
         const cmdText = (err.current as { command?: unknown } | null)?.command;
         console.log(`settings.json already has another statusLine${typeof cmdText === "string" ? `: ${cmdText}` : ""}`);
-        console.log("re-run with --replace to use claude-code-super-statusline instead; `uninstall` puts the old one back");
+        console.log("re-run with --replace to use claude-super-statusline instead; `uninstall` puts the old one back");
         process.exitCode = 1;
       }
       return;
@@ -95,7 +95,7 @@ async function main(): Promise<void> {
     case "uninstall": {
       const { uninstall } = await import("../server/install.js");
       const r = uninstall();
-      if (!r.removed) console.log(`the statusLine in ${r.settingsFile} isn't claude-code-super-statusline's — left untouched`);
+      if (!r.removed) console.log(`the statusLine in ${r.settingsFile} isn't claude-super-statusline's — left untouched`);
       else console.log(`statusLine ${r.restored ? "restored to the previous one" : "removed"} in ${r.settingsFile}${r.backup ? ` (backup: ${r.backup})` : ""}`);
       return;
     }
@@ -127,7 +127,7 @@ async function main(): Promise<void> {
     case "--help":
     case "-h":
     case "help":
-      console.log(`claude-code-super-statusline <command>
+      console.log(`claude-super-statusline <command>
 
   render            read Claude Code statusline JSON on stdin, print the status line (default)
   serve [--port N] [--open]   start the local web configurator (127.0.0.1:4877)
@@ -147,6 +147,6 @@ async function main(): Promise<void> {
 
 main().catch((err) => {
   // Never blank the statusline silently: print a one-line marker.
-  console.log(`[claude-code-super-statusline] error: ${err instanceof Error ? err.message : String(err)}`);
+  console.log(`[claude-super-statusline] error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(0);
 });

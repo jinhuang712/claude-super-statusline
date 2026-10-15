@@ -4,8 +4,8 @@ Everything the configurator page does can also be done by hand. For how it works
 
 ## Config file
 
-The page writes `~/.config/claude-code-super-statusline/config.json`. A project can override it with
-`.claude/claude-code-super-statusline.json` (choose which one the page saves to in its header). Objects merge,
+The page writes `~/.config/claude-super-statusline/config.json`. A project can override it with
+`.claude/claude-super-statusline.json` (choose which one the page saves to in its header). Objects merge,
 `lines` replaces wholesale, and both files are re-read on every refresh.
 
 ```jsonc
@@ -53,7 +53,7 @@ From a checkout (`bun install` first), `bun src/cli/main.ts <command>`:
 
 ## Your own widgets
 
-Drop a `.ts` or `.js` file in `~/.config/claude-code-super-statusline/widgets/` and restart the configurator. It
+Drop a `.ts` or `.js` file in `~/.config/claude-super-statusline/widgets/` and restart the configurator. It
 appears under *Unused widgets*; the statusline picks it up right away.
 
 ```ts
@@ -74,7 +74,7 @@ built-ins in [`src/widgets/`](src/widgets/), and the widget contract in [DESIGN.
 
 * The configurator listens on `127.0.0.1` only, and answers only requests whose `Host` and `Origin` are its own:
   other websites can't read your sessions or change your settings.
-* A project's own widgets (`<project>/.claude/claude-code-super-statusline/widgets/`) are code, so they load only for
+* A project's own widgets (`<project>/.claude/claude-super-statusline/widgets/`) are code, so they load only for
   projects listed in `plugins.trustedProjects` of your *user* config (*⋯ → Diagnostics → Trust this project*). A
   project's config can't trust itself.
 * The preview renders only captured sessions and bundled samples, never a path a request supplies.

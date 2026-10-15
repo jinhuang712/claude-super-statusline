@@ -59,7 +59,7 @@ export const ZH: Record<string, string> = {
   "install.terminal": "终端",
   "copy.aria": "复制安装命令",
   "install.then":
-    '然后在 Claude Code 里运行 <code>/super-statusline:config</code>，选一个布局。想手动安装，或先看看脚本？见 <a href="https://github.com/jinhuang712/claude-code-super-statusline/blob/main/INSTALL.md">INSTALL.md</a>。',
+    '然后在 Claude Code 里运行 <code>/super-statusline:config</code>，选一个布局。想手动安装，或先看看脚本？见 <a href="https://github.com/jinhuang712/claude-super-statusline/blob/main/INSTALL.md">INSTALL.md</a>。',
 
   "foot.aria": "项目",
   "foot.credit": 'MIT · 数据层源自 <a href="https://github.com/jarrodwatts/claude-hud">claude-hud</a>',
