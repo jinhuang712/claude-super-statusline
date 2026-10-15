@@ -45,7 +45,7 @@ export const en = {
     cursorResume: "Resume the blinking cursor",
     sandbox: "Sandbox",
     demo: "Demo",
-    demoTitle: "A demo with a sample session. Your changes stay in this browser; install the plugin to use it in Claude Code.",
+    demoTitle: "A demo with a sample session. Your changes stay in this browser; install the plugin to use it in Claude.",
     demoSaved: "Changes stay in this browser",
     sandboxTitle: "This configurator edits temporary copies — nothing you change here reaches your real config or Claude Code.",
     scope: "Saving to",

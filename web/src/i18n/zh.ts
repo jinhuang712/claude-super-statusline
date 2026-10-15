@@ -39,7 +39,7 @@ export const zh: Messages = {
     cursorResume: "恢复光标闪烁",
     sandbox: "沙盒",
     demo: "演示",
-    demoTitle: "用示例会话演示。改动只保存在这个浏览器里；安装插件后才能在 Claude Code 里使用。",
+    demoTitle: "用示例会话演示。改动只保存在这个浏览器里；安装插件后才能在 Claude 里使用。",
     demoSaved: "改动只保存在这个浏览器",
     sandboxTitle: "这个配置器改的是临时副本，这里的改动不会写到你真实的配置，也不会影响 Claude Code。",
     scope: "保存到",
