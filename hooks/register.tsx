@@ -13,8 +13,10 @@ import type { Register } from 'claude-code'
 import { createApi } from '../src/core/api.ts'
 import { THEMES } from '../src/core/theme.ts'
 import { defineWidget } from '../src/core/types.ts'
-import type { Ctx, Segment, WidgetDefinition } from '../src/core/types.ts'
-import { usageWindows } from '../src/widgets/usage.ts'
+import type { Ctx, LineConfig, Segment, WidgetDefinition, WidgetInstance } from '../src/core/types.ts'
+import { DEFAULT_DESKTOP_LINES, readDesktopLines } from '../src/core/desktop.ts'
+import { withLabel } from '../src/widgets/_shared.ts'
+import { usageSingle, usageWindows } from '../src/widgets/usage.ts'
 import type { Stats, Tokens } from '../types'
 
 /** What the mod has counted since this session started (kept in `$.state`, so a reload keeps it). */
@@ -42,28 +44,33 @@ const hitRatio = (t: Tokens) => {
 // The desktop app already shows the model, the context ring and the project, so the band carries only
 // what it lacks. The built-in cost.session and tokens.* widgets read node:fs, which a mod cannot
 // import, so the widgets below are small stand-ins fed by what the mod counted.
-const cost = defineWidget<Record<string, never>>({
+type Labelled = { label: string | null }
+
+const cost = defineWidget<Labelled>({
   id: 'cost.session',
   name: 'Session cost',
   description: 'What the session has cost so far.',
   category: 'cost',
   schema: { type: 'object', properties: {} },
-  defaults: {},
-  render(ctx, _o, api) {
+  defaults: { label: 'Cost' },
+  render(ctx, o, api) {
     const usd = ctx.stdin.cost?.total_cost_usd
     if (usd == null) return null
-    return [api.seg('Cost ', { fg: 'muted' }), api.seg(usd < 0.005 ? '$0.00' : `$${usd.toFixed(2)}`)]
+    const label = withLabel(o.label, 'Cost')
+    return [...(label ? [api.seg(`${label} `, { fg: 'muted' })] : []), api.seg(usd < 0.005 ? '$0.00' : `$${usd.toFixed(2)}`)]
   },
 })
 
-const cache = defineWidget<Record<string, never>>({
-  id: 'cache.hit',
+// Takes the registry's context.promptCache id so a layout written for the terminal names the same
+// widget; here it shows the hit ratio, since warm/cold and the expiry are not something a mod sees.
+const cache = defineWidget<Labelled>({
+  id: 'context.promptCache',
   name: 'Cache hit ratio',
   description: 'Share of the latest response’s prompt the prompt cache served, and the session average.',
   category: 'context',
   schema: { type: 'object', properties: {} },
-  defaults: {},
-  render(ctx, _o, api) {
+  defaults: { label: 'Cache' },
+  render(ctx, o, api) {
     const { last, total } = (ctx as ModCtx).stats
     const now = last && hitRatio(last)
     if (now == null) return null
@@ -71,27 +78,29 @@ const cache = defineWidget<Record<string, never>>({
     const pct = Math.round(now * 100)
     const lvl = api.level(100 - pct, 30, 60)
     const avg = hitRatio(total)
+    const label = withLabel(o.label, 'Cache')
     return [
-      api.seg('Cache ', { fg: 'muted' }),
+      ...(label ? [api.seg(`${label} `, { fg: 'muted' })] : []),
       api.seg(`${pct}%`, { fg: api.levelColor(100 - pct, lvl, 'ok') }),
       ...(avg == null ? [] : [api.seg(` avg ${Math.round(avg * 100)}%`, { fg: 'muted' })]),
     ]
   },
 })
 
-const tokens = defineWidget<Record<string, never>>({
+const tokens = defineWidget<Labelled>({
   id: 'tokens.session',
   name: 'Session tokens',
   description: 'Tokens used since the mod started counting: new input, output and cache reads.',
   category: 'usage',
   schema: { type: 'object', properties: {} },
-  defaults: {},
-  render(ctx, _o, api) {
+  defaults: { label: 'Tokens' },
+  render(ctx, o, api) {
     const t = (ctx as ModCtx).stats.total
     const all = t.input + t.output + t.cacheRead + t.cacheWrite
     if (all <= 0) return null
+    const label = withLabel(o.label, 'Tokens')
     return [
-      api.seg('Tokens ', { fg: 'muted' }),
+      ...(label ? [api.seg(`${label} `, { fg: 'muted' })] : []),
       api.seg(api.tokens(all)),
       api.seg(` ↓${api.tokens(t.input + t.cacheWrite)} ↑${api.tokens(t.output)}`, { fg: 'muted' }),
     ]
@@ -112,15 +121,66 @@ const speed = defineWidget<Record<string, never>>({
   },
 })
 
+/** Widgets by registry id: the real ones where they run in a mod, the stand-ins above elsewhere. */
+const WIDGETS: Record<string, WidgetDefinition<any>> = {
+  'usage.windows': usageWindows,
+  'usage.single': usageSingle,
+  'cost.session': cost,
+  'context.promptCache': cache,
+  'tokens.session': tokens,
+  'tokens.outputSpeed': speed,
+}
+
 type Instance = { def: WidgetDefinition<any>; options?: Record<string, unknown> }
 type Line = { left: Instance[]; right: Instance[] }
 
-const LINES: Line[] = [
-  { left: [{ def: usageWindows, options: { bar: true, barWidth: 10 } }], right: [{ def: cost }] },
-  { left: [{ def: cache }, { def: tokens }], right: [{ def: speed }] },
-]
+/** A config entry as something drawable: its widget, with the entry's label laid over the options. */
+const toInstance = (w: WidgetInstance): Instance[] => {
+  const def = WIDGETS[w.widget]
+  if (!def) return []
+  return [{ def, options: w.label === undefined ? w.options : { ...w.options, label: w.label } }]
+}
+
+const toLines = (lines: LineConfig[]): Line[] =>
+  lines.map(l => ({ left: (l.left ?? []).flatMap(toInstance), right: (l.right ?? []).flatMap(toInstance) }))
 
 const theme = THEMES.default!
+
+type Files = {
+  env: { get: (name: string) => Promise<string | undefined> }
+  fs: { stat: (path: string) => Promise<{ mtimeMs: number }>; read: (path: string) => Promise<string | { base64: string }> }
+}
+
+/** The config file the web panel writes, found the way src/core/config.ts's userConfigPath finds it. */
+const configPath = async ($: Files) => {
+  const explicit = (await $.env.get('CLAUDE_CODE_SUPER_STATUSLINE_CONFIG'))?.trim()
+  if (explicit) return explicit
+  const xdg = (await $.env.get('XDG_CONFIG_HOME'))?.trim()
+  const home = await $.env.get('HOME')
+  return `${xdg || `${home}/.config`}/claude-code-super-statusline/config.json`
+}
+
+/** The layout last read, with the file's modification time, so an unchanged file is not parsed again. */
+let loaded: { path: string; mtimeMs: number; lines: LineConfig[] } | null = null
+
+/**
+ * The desktop layout the user saved in the panel (`desktop.lines`), or the default one. A missing,
+ * unreadable or malformed file falls back to the default rather than blanking the band: the band is
+ * decoration, and the panel may be mid-write or never have been opened.
+ */
+const loadLines = async ($: Files): Promise<LineConfig[]> => {
+  try {
+    const path = await configPath($)
+    const { mtimeMs } = await $.fs.stat(path)
+    if (loaded?.path === path && loaded.mtimeMs === mtimeMs) return loaded.lines
+    const text = await $.fs.read(path)
+    const lines = readDesktopLines(JSON.parse(typeof text === 'string' ? text : ''))
+    loaded = { path, mtimeMs, lines }
+    return lines
+  } catch {
+    return DEFAULT_DESKTOP_LINES
+  }
+}
 
 const seconds = (iso: string | undefined) => (iso ? Math.floor(Date.parse(iso) / 1000) : null)
 
@@ -217,6 +277,8 @@ export const register: Register = on => {
     if (e.props.hasSurvey) return next(e)
 
     const ctx = await snapshot($, await read($, stats))
+    const lines = toLines(await loadLines($))
+    if (lines.every(l => l.left.length + l.right.length === 0)) return next(e)
     const { Box, Text } = $.ui.resolve(e)
 
     const zone = (instances: Instance[]) =>
@@ -250,7 +312,7 @@ export const register: Register = on => {
 
     return (
       <Box flexDirection="column">
-        {LINES.map((line, i) => (
+        {lines.map((line, i) => (
           <Box key={`line${i}`} justifyContent="space-between">
             <Box>{zone(line.left)}</Box>
             <Box>{zone(line.right)}</Box>
