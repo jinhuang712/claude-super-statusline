@@ -7,6 +7,7 @@ import {
   isOurStatusLine,
   launcherCommand,
   LEGACY_PREVIOUS_KEY,
+  LEGACY_PREVIOUS_KEYS,
   NeedsConfirmError,
   planInstall,
   pluginCacheBase,
@@ -52,6 +53,8 @@ describe("isOurStatusLine", () => {
       "/h/.claude/plugins/cache/my-fork/super-statusline/0.4.0/src/cli/main.ts",
       "/h/.claude/plugins/cache/my-fork/ssp/0.3.3/src/cli/main.ts",
       "/Users/me/dev/claude-code-super-statusline/src/cli/main.ts",
+      "/Users/me/dev/claude-super-statusline/src/cli/main.ts",
+      "/h/.claude/plugins/cache/claude-super-statusline/super-statusline/0.6.0/src/cli/main.ts",
     ]) {
       expect(isOurStatusLine({ command: launcherCommand(entry, "/usr/bin/bun") })).toBe(true);
     }
@@ -79,6 +82,26 @@ describe("a statusline parked by 0.3.x (under the old key name)", () => {
     seed({ statusLine: { ...OURS_OLD }, [LEGACY_PREVIOUS_KEY]: HUD });
     expect(install({ command: OURS_OLD.command }).unchanged).toBe(false);
     expect(settings()[PREVIOUS_KEY]).toEqual(HUD);
+  });
+});
+
+describe("a statusline parked under the key of the previous name", () => {
+  const MID_KEY = LEGACY_PREVIOUS_KEYS[0];
+
+  test("install moves it to the new key and uninstall restores it", () => {
+    seed({ statusLine: OURS_OLD, [MID_KEY]: HUD });
+    expect(planInstall({ command: OURS_NEW }).savedPrevious).toEqual(HUD);
+    install({ command: OURS_NEW });
+    expect(settings()[PREVIOUS_KEY]).toEqual(HUD);
+    expect(settings()[MID_KEY]).toBeUndefined();
+    expect(uninstall()).toMatchObject({ removed: true, restored: HUD });
+    expect(settings()).toEqual({ statusLine: HUD });
+  });
+
+  test("uninstall restores it straight from that key and drops it", () => {
+    seed({ statusLine: OURS_OLD, [MID_KEY]: HUD, theme: "dark" });
+    expect(uninstall()).toMatchObject({ removed: true, restored: HUD });
+    expect(settings()).toEqual({ statusLine: HUD, theme: "dark" });
   });
 });
 

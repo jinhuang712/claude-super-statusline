@@ -5,29 +5,30 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAME, newOrLegacy } from "../data/app-name.js";
+import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAMES, legacyPaths, newOrLegacy } from "../data/app-name.js";
 import { DEFAULT_DESKTOP_LINES, readDesktopLines } from "./desktop.js";
 import type { FooterConfig, LineConfig, WidgetInstance } from "./types.js";
 
 /** 2: ahead/behind and the file stats moved from git.branch to git.linesChanged (migrateGitBranchParts). */
 export const CONFIG_VERSION = 2 as const;
 
-/** The user's own folder: config.json and widgets/. A pre-0.4.0 `claude-code-ssp` one is moved here on first use. */
+/** The user's own folder: config.json and widgets/. One from an earlier name (`claude-code-super-statusline`, `claude-code-ssp`) is moved here on first use. */
 export function userConfigDir(env: NodeJS.ProcessEnv = process.env, homeDir = os.homedir()): string {
   const xdg = env.XDG_CONFIG_HOME && env.XDG_CONFIG_HOME.trim() ? env.XDG_CONFIG_HOME : path.join(homeDir, ".config");
-  return adoptLegacyDir(path.join(xdg, APP_NAME), path.join(xdg, LEGACY_APP_NAME));
+  return adoptLegacyDir(path.join(xdg, APP_NAME), ...legacyPaths(xdg));
 }
 
 export function userConfigPath(env: NodeJS.ProcessEnv = process.env, homeDir = os.homedir()): string {
-  const explicit = env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG?.trim();
+  // CLAUDE_CODE_SUPER_STATUSLINE_CONFIG is the name before the rename; still honoured, the new one wins.
+  const explicit = (env.CLAUDE_SUPER_STATUSLINE_CONFIG ?? env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG)?.trim();
   if (explicit) return path.resolve(explicit.replace(/^~(?=$|[\\/])/, homeDir));
   return path.join(userConfigDir(env, homeDir), "config.json");
 }
 
-/** A project's overlay, `.claude/claude-code-super-statusline.json` — or its pre-0.4.0 `claude-code-ssp.json` if that is the one it has. */
+/** A project's overlay, `.claude/claude-super-statusline.json` — or the `claude-code-super-statusline.json` / `claude-code-ssp.json` of an earlier name, if that is the one it has. */
 export function projectConfigPath(cwd: string): string {
   const dir = path.join(cwd, ".claude");
-  return newOrLegacy(path.join(dir, `${APP_NAME}.json`), path.join(dir, `${LEGACY_APP_NAME}.json`));
+  return newOrLegacy(path.join(dir, `${APP_NAME}.json`), ...LEGACY_APP_NAMES.map((name) => path.join(dir, `${name}.json`)));
 }
 
 export const DEFAULT_LINES: LineConfig[] = [

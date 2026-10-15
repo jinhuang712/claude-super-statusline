@@ -42,7 +42,8 @@ async function cmdRender(argv: string[]): Promise<void> {
   // still sitting in a buffer would be cut off. Only this Claude Code-bound output is guarded: the
   // web preview renders the same lines without Claude Code's per-line trim.
   await writeFully(process.stdout, result.lines.map((line) => `${guardLeadingSpace(line)}\n`).join(""));
-  if (process.env.CLAUDE_CODE_SUPER_STATUSLINE_DEBUG) {
+  // CLAUDE_CODE_SUPER_STATUSLINE_DEBUG is the name before the rename; still honoured.
+  if (process.env.CLAUDE_SUPER_STATUSLINE_DEBUG || process.env.CLAUDE_CODE_SUPER_STATUSLINE_DEBUG) {
     const debug = [`[claude-code-super-statusline] render ${result.ms.toFixed(1)}ms total ${(performance.now() - started).toFixed(1)}ms`, ...result.errors.map((e) => `[claude-code-super-statusline] ${e.widget}: ${e.message}`)];
     await writeFully(process.stderr, debug.map((l) => `${l}\n`).join(""));
   }

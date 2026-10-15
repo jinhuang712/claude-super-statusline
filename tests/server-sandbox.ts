@@ -8,7 +8,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { APP_NAME } from "../src/data/app-name.ts";
 
-const KEYS = ["HOME", "CLAUDE_CONFIG_DIR", "XDG_CONFIG_HOME", "CLAUDE_CODE_SUPER_STATUSLINE_CONFIG"] as const;
+const KEYS = ["HOME", "CLAUDE_CONFIG_DIR", "XDG_CONFIG_HOME", "CLAUDE_SUPER_STATUSLINE_CONFIG", "CLAUDE_CODE_SUPER_STATUSLINE_CONFIG"] as const;
 
 export interface Sandbox {
   root: string;
@@ -28,7 +28,8 @@ export function enterSandbox(): Sandbox {
   process.env.HOME = path.join(root, "home");
   process.env.CLAUDE_CONFIG_DIR = claudeDir;
   process.env.XDG_CONFIG_HOME = path.join(root, "xdg");
-  process.env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG = userConfig;
+  delete process.env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG;
+  process.env.CLAUDE_SUPER_STATUSLINE_CONFIG = userConfig;
   fs.mkdirSync(process.env.HOME, { recursive: true });
   return {
     root,

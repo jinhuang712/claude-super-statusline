@@ -19,12 +19,16 @@ import { fileURLToPath } from "node:url";
 import { getClaudeConfigDir } from "../data/claude-config-dir.js";
 
 /** settings.json key holding the statusLine we replaced, restored by uninstall. */
-export const PREVIOUS_KEY = "statusLine.previous.claude-code-super-statusline";
+export const PREVIOUS_KEY = "statusLine.previous.claude-super-statusline";
 /**
- * The same key before 0.4.0. Read wherever PREVIOUS_KEY is (the new one wins when both exist) and
- * moved to it on the next install, so a statusline parked by 0.3.x still comes back on uninstall.
+ * The same key under the product's earlier names, newest first (`claude-code-super-statusline` from
+ * 0.4.0 to 0.5.x, `claude-code-ssp` before that). Read wherever PREVIOUS_KEY is (the new one wins when
+ * several exist) and moved to it on the next install, so a statusline parked by an older version still
+ * comes back on uninstall.
  */
-export const LEGACY_PREVIOUS_KEY = "statusLine.previous.claude-code-ssp";
+export const LEGACY_PREVIOUS_KEYS = ["statusLine.previous.claude-code-super-statusline", "statusLine.previous.claude-code-ssp"] as const;
+/** The `claude-code-ssp` key from before 0.4.0, the last of LEGACY_PREVIOUS_KEYS. */
+export const LEGACY_PREVIOUS_KEY = LEGACY_PREVIOUS_KEYS[1];
 
 /**
  * `statusLine.refreshInterval` a fresh install writes, in seconds. Claude Code re-runs the command
@@ -42,7 +46,7 @@ const MAX_REFRESH_SECONDS = 3600;
 
 /** The parked statusLine, under either key name. */
 function parkedPrevious(settings: Record<string, unknown>): unknown {
-  return settings[PREVIOUS_KEY] ?? settings[LEGACY_PREVIOUS_KEY];
+  return settings[PREVIOUS_KEY] ?? LEGACY_PREVIOUS_KEYS.map((key) => settings[key]).find((value) => value !== undefined);
 }
 
 export interface InstallOptions {
@@ -60,9 +64,10 @@ export function settingsPath(homeDir = os.homedir()): string {
 /**
  * Is this settings.json statusLine entry one that we wrote?
  * Every command we install runs `<plugin root>/src/cli/main.ts render`, where the plugin root is either
- * a checkout called claude-code-super-statusline or a Claude Code plugin-cache dir for the
- * `super-statusline` plugin — or, before 0.4.0, claude-code-ssp and `ssp`, which must still count as
- * ours so an upgrade replaces them instead of parking them as "your previous statusline". claude-hud
+ * a checkout called claude-super-statusline (or claude-code-super-statusline, its name until the
+ * rename) or a Claude Code plugin-cache dir for the `super-statusline` plugin — or, before 0.4.0,
+ * claude-code-ssp and `ssp`, which must still count as ours so an upgrade replaces them instead of
+ * parking them as "your previous statusline". claude-hud
  * and other tools use different entry points, so all three markers together don't collide with them.
  * The plugin dir is followed by `/` in a version-pinned path (`…/ssp/0.2.0/src/…`) and by `"` in the
  * launcher, which quotes the dir and then globs the version dirs after the closing quote.
@@ -71,7 +76,7 @@ export function isOurStatusLine(entry: unknown): boolean {
   if (!entry || typeof entry !== "object") return false;
   const cmd = (entry as { command?: unknown }).command;
   if (typeof cmd !== "string") return false;
-  return /src[\\/]cli[\\/]main\.ts/.test(cmd) && /\brender\b/.test(cmd) && /claude-code-(?:super-statusline|ssp)|[\\/](?:super-statusline|ssp)[\\/"]/.test(cmd);
+  return /src[\\/]cli[\\/]main\.ts/.test(cmd) && /\brender\b/.test(cmd) && /claude-(?:code-)?(?:super-statusline|ssp)|[\\/](?:super-statusline|ssp)[\\/"]/.test(cmd);
 }
 
 /** A command that runs the plugin from before 0.4.0, when it was called `ssp` (any marketplace name). */
@@ -224,8 +229,8 @@ export function install(opts: InstallOptions = {}): InstallResult {
   // Heal settings left by the old bug where PREVIOUS_KEY got our own stale command: restoring that on
   // uninstall would just reinstall us.
   const legacyOwnPrevious = isOurStatusLine(parkedPrevious(settings));
-  // Parked by a pre-0.4.0 install under the old key name: this write moves it to PREVIOUS_KEY.
-  const oldKey = settings[LEGACY_PREVIOUS_KEY] !== undefined;
+  // Parked by an older install under an earlier key name: this write moves it to PREVIOUS_KEY.
+  const oldKey = LEGACY_PREVIOUS_KEYS.some((key) => settings[key] !== undefined);
   if (plan.currentIsOurs && JSON.stringify(plan.current) === JSON.stringify(plan.planned) && !legacyOwnPrevious && !oldKey) {
     return { settingsFile: plan.settingsFile, backup: null, replaced: null, unchanged: true, statusLine: plan.planned };
   }
@@ -237,9 +242,9 @@ export function install(opts: InstallOptions = {}): InstallResult {
   } else if (legacyOwnPrevious) {
     delete settings[PREVIOUS_KEY];
   } else if (oldKey && settings[PREVIOUS_KEY] === undefined) {
-    settings[PREVIOUS_KEY] = settings[LEGACY_PREVIOUS_KEY];
+    settings[PREVIOUS_KEY] = parkedPrevious(settings);
   }
-  delete settings[LEGACY_PREVIOUS_KEY];
+  for (const key of LEGACY_PREVIOUS_KEYS) delete settings[key];
   settings.statusLine = plan.planned;
   const backup = writeSettings(plan.settingsFile, settings);
   return { settingsFile: plan.settingsFile, backup, replaced: plan.current, unchanged: false, statusLine: plan.planned };
@@ -263,7 +268,7 @@ export function uninstall(): UninstallResult {
   if (restorable) settings.statusLine = prev;
   else delete settings.statusLine;
   delete settings[PREVIOUS_KEY];
-  delete settings[LEGACY_PREVIOUS_KEY];
+  for (const key of LEGACY_PREVIOUS_KEYS) delete settings[key];
   const backup = writeSettings(file, settings);
   return { settingsFile: file, restored: restorable ? prev : null, removed: true, backup };
 }

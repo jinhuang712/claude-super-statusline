@@ -9,7 +9,7 @@
  * the variables below at call time:
  *   - CLAUDE_CONFIG_DIR      → data root (samples, git/transcript caches, resets) and settings.json
  *   - XDG_CONFIG_HOME        → user config dir (plugins dir, default config path)
- *   - CLAUDE_CODE_SUPER_STATUSLINE_CONFIG → explicit user config file
+ *   - CLAUDE_SUPER_STATUSLINE_CONFIG → explicit user config file
  * HOME is still set so that child processes (the CLI budget test, git) start with the temp home.
  * `tests/isolation.test.ts` asserts the redirection actually holds.
  */
@@ -28,7 +28,10 @@ for (const d of Object.values(dirs)) fs.mkdirSync(d, { recursive: true });
 process.env.SSP_TEST_ROOT = root;
 process.env.CLAUDE_CONFIG_DIR = dirs.claude;
 process.env.XDG_CONFIG_HOME = dirs.xdg;
-process.env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG = path.join(dirs.xdg, "claude-code-super-statusline", "config.json");
+// Both spellings, so a developer's own CLAUDE_CODE_SUPER_STATUSLINE_CONFIG (the pre-rename name, still
+// honoured) cannot point a test at a real config either.
+delete process.env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG;
+process.env.CLAUDE_SUPER_STATUSLINE_CONFIG = path.join(dirs.xdg, "claude-super-statusline", "config.json");
 process.env.HOME = dirs.home;
 // The ambient Claude session id (set when tests run inside Claude Code) would make reset tests
 // depend on whoever ran them; tests that need one set it explicitly.

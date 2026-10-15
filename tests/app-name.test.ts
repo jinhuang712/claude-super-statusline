@@ -8,7 +8,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { userConfigDir } from "../src/core/config.ts";
-import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAME } from "../src/data/app-name.ts";
+import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAME, LEGACY_APP_NAMES, legacyPaths, newOrLegacy } from "../src/data/app-name.ts";
 import { getHudPluginDir } from "../src/data/claude-config-dir.ts";
 
 const temps: string[] = [];
@@ -86,5 +86,55 @@ describe("the folders we own adopt their old names", () => {
     expect(userConfigDir({ XDG_CONFIG_HOME: xdg })).toBe(path.join(xdg, APP_NAME));
     expect(fs.readFileSync(path.join(xdg, APP_NAME, "config.json"), "utf8")).toBe('{"separator":" | "}');
     expect(fs.existsSync(path.join(xdg, APP_NAME, "widgets"))).toBe(true);
+  });
+});
+
+// The product has had three names (claude-code-ssp, claude-code-super-statusline, claude-super-statusline),
+// so a machine can be one or two renames behind.
+describe("a chain of earlier names", () => {
+  const [previous, oldest] = LEGACY_APP_NAMES;
+
+  test("the folder two renames back is adopted straight into the new name", () => {
+    const parent = temp();
+    fs.mkdirSync(path.join(parent, oldest, "resets"), { recursive: true });
+    expect(adoptLegacyDir(path.join(parent, APP_NAME), ...legacyPaths(parent))).toBe(path.join(parent, APP_NAME));
+    expect(fs.existsSync(path.join(parent, APP_NAME, "resets"))).toBe(true);
+    expect(fs.existsSync(path.join(parent, oldest))).toBe(false);
+  });
+
+  test("with several old folders, the newest is adopted and the older one is left alone", () => {
+    const parent = temp();
+    fs.mkdirSync(path.join(parent, previous));
+    fs.writeFileSync(path.join(parent, previous, "config.json"), "newer");
+    fs.mkdirSync(path.join(parent, oldest));
+    fs.writeFileSync(path.join(parent, oldest, "config.json"), "older");
+    expect(adoptLegacyDir(path.join(parent, APP_NAME), ...legacyPaths(parent))).toBe(path.join(parent, APP_NAME));
+    expect(fs.readFileSync(path.join(parent, APP_NAME, "config.json"), "utf8")).toBe("newer");
+    expect(fs.readFileSync(path.join(parent, oldest, "config.json"), "utf8")).toBe("older");
+  });
+
+  test("a project file under an earlier name is read where it is, the newest earlier name first", () => {
+    const parent = temp();
+    const file = (name: string) => path.join(parent, `${name}.json`);
+    fs.writeFileSync(file(oldest), "{}");
+    expect(newOrLegacy(file(APP_NAME), ...LEGACY_APP_NAMES.map(file))).toBe(file(oldest));
+    fs.writeFileSync(file(previous), "{}");
+    expect(newOrLegacy(file(APP_NAME), ...LEGACY_APP_NAMES.map(file))).toBe(file(previous));
+    fs.writeFileSync(file(APP_NAME), "{}");
+    expect(newOrLegacy(file(APP_NAME), ...LEGACY_APP_NAMES.map(file))).toBe(file(APP_NAME));
+  });
+
+  test("the user config folder of the previous name moves over too", () => {
+    const xdg = temp();
+    const saved = process.env.XDG_CONFIG_HOME;
+    process.env.XDG_CONFIG_HOME = xdg;
+    try {
+      fs.mkdirSync(path.join(xdg, previous));
+      fs.writeFileSync(path.join(xdg, previous, "config.json"), '{"separator":" ~ "}');
+      expect(userConfigDir(process.env)).toBe(path.join(xdg, APP_NAME));
+      expect(fs.readFileSync(path.join(xdg, APP_NAME, "config.json"), "utf8")).toBe('{"separator":" ~ "}');
+    } finally {
+      process.env.XDG_CONFIG_HOME = saved;
+    }
   });
 });

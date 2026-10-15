@@ -57,7 +57,7 @@ describe("legacy per-widget colorMode", () => {
     try {
       const file = path.join(dir, "config.json");
       fs.writeFileSync(file, JSON.stringify({ lines: [{ right: [ctxGradient] }] }));
-      const eff = loadEffectiveConfig(undefined, { ...process.env, CLAUDE_CODE_SUPER_STATUSLINE_CONFIG: file });
+      const eff = loadEffectiveConfig(undefined, { ...process.env, CLAUDE_SUPER_STATUSLINE_CONFIG: file });
       expect(eff.config.colorMode).toBe("gradient");
       expect(eff.layers.find((l) => l.name === "user")!.value!.colorMode).toBe("gradient");
     } finally {
@@ -108,6 +108,26 @@ describe("migrateGitBranchParts (config version 2)", () => {
 
   test("a hand-written file without a version counts as version 1; normalizeConfig migrates too", () => {
     expect(normalizeConfig({ lines: [{ left: [branch()] }] }).lines[0]!.left).toHaveLength(2);
+  });
+});
+
+describe("the explicit config file variable", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ssp-envvar-"));
+  afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const file = (name: string, separator: string) => {
+    const f = path.join(dir, name);
+    fs.writeFileSync(f, JSON.stringify({ separator }));
+    return f;
+  };
+
+  test("the name from before the rename still points at a file", () => {
+    const old = file("old.json", " old ");
+    expect(loadEffectiveConfig(undefined, { CLAUDE_CODE_SUPER_STATUSLINE_CONFIG: old } as NodeJS.ProcessEnv).config.separator).toBe(" old ");
+  });
+
+  test("the new name wins when both are set", () => {
+    const env = { CLAUDE_CODE_SUPER_STATUSLINE_CONFIG: file("a.json", " a "), CLAUDE_SUPER_STATUSLINE_CONFIG: file("b.json", " b ") } as NodeJS.ProcessEnv;
+    expect(loadEffectiveConfig(undefined, env).config.separator).toBe(" b ");
   });
 });
 

@@ -56,7 +56,7 @@ stop_server() {
   cmd="$(ps -o command= -p "$pid" 2>/dev/null || true)"
   # Ours, including a pre-0.4.0 server (then called claude-code-ssp) still holding the port after an upgrade.
   case "$cmd" in
-    *main.ts\ serve*|*claude-code-super-statusline*serve*|*claude-code-ssp*serve*) ;;
+    *main.ts\ serve*|*claude-super-statusline*serve*|*claude-code-super-statusline*serve*|*claude-code-ssp*serve*) ;;
     *) echo "port $PORT is held by another program (pid $pid: ${cmd:-unknown}) — set SUPER_STATUSLINE_PORT"; exit 1 ;;
   esac
   kill "$pid" 2>/dev/null || true
@@ -78,8 +78,8 @@ case "${1:-config}" in
   config)
     ROOT_REAL="$(cd "$ROOT" && pwd -P)"
     TMP="${TMPDIR:-/tmp}"
-    LOG="${TMP%/}/claude-code-super-statusline-serve.log"
-    BUILD_LOG="${TMP%/}/claude-code-super-statusline-build.log"
+    LOG="${TMP%/}/claude-super-statusline-serve.log"
+    BUILD_LOG="${TMP%/}/claude-super-statusline-build.log"
     built=""
     if web_stale; then
       if { [ -d "$ROOT/web/node_modules" ] || "$BUN" install --cwd "$ROOT/web"; } >"$BUILD_LOG" 2>&1 \

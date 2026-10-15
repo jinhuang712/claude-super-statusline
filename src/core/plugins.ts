@@ -12,7 +12,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
-import { APP_NAME, LEGACY_APP_NAME, newOrLegacy } from "../data/app-name.js";
+import { APP_NAME, legacyPaths, newOrLegacy } from "../data/app-name.js";
 import { userConfigDir } from "./config.js";
 import { registerWidget } from "./registry.js";
 import type { FooterConfig, WidgetDefinition } from "./types.js";
@@ -32,7 +32,7 @@ export interface PluginLoadReport {
  */
 export function projectWidgetsDir(cwd: string): string {
   const dir = path.join(cwd, ".claude");
-  return newOrLegacy(path.join(dir, APP_NAME, "widgets"), path.join(dir, LEGACY_APP_NAME, "widgets"));
+  return newOrLegacy(path.join(dir, APP_NAME, "widgets"), ...legacyPaths(dir, "widgets"));
 }
 
 function canonical(p: string): string {

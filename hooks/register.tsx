@@ -151,13 +151,25 @@ type Files = {
   fs: { stat: (path: string) => Promise<{ mtimeMs: number }>; read: (path: string) => Promise<string | { base64: string }> }
 }
 
-/** The config file the web panel writes, found the way src/core/config.ts's userConfigPath finds it. */
+/** Folder names the config has lived under, newest first (src/data/app-name.ts has the same list; a mod cannot import it). */
+const CONFIG_DIRS = ['claude-super-statusline', 'claude-code-super-statusline', 'claude-code-ssp']
+
+/**
+ * The config file the web panel writes, found the way src/core/config.ts's userConfigPath finds it. The
+ * file may still sit under an earlier product name: the statusline moves the folder the first time it
+ * runs after an upgrade, and a mod can only read, so it takes the first name that has the file.
+ */
 const configPath = async ($: Files) => {
-  const explicit = (await $.env.get('CLAUDE_CODE_SUPER_STATUSLINE_CONFIG'))?.trim()
+  const explicit = (await $.env.get('CLAUDE_SUPER_STATUSLINE_CONFIG'))?.trim() || (await $.env.get('CLAUDE_CODE_SUPER_STATUSLINE_CONFIG'))?.trim()
   if (explicit) return explicit
   const xdg = (await $.env.get('XDG_CONFIG_HOME'))?.trim()
   const home = await $.env.get('HOME')
-  return `${xdg || `${home}/.config`}/claude-code-super-statusline/config.json`
+  const base = xdg || `${home}/.config`
+  for (const dir of CONFIG_DIRS) {
+    const candidate = `${base}/${dir}/config.json`
+    if (await $.fs.stat(candidate).then(() => true, () => false)) return candidate
+  }
+  return `${base}/${CONFIG_DIRS[0]}/config.json`
 }
 
 /** The layout last read, with the file's modification time, so an unchanged file is not parsed again. */

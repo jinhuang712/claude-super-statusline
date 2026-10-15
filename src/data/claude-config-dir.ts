@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { adoptLegacyDir, APP_NAME, LEGACY_APP_NAME } from './app-name.js';
+import { adoptLegacyDir, APP_NAME, legacyPaths } from './app-name.js';
 
 function expandHomeDirPrefix(inputPath: string, homeDir: string): string {
   if (inputPath === '~') {
@@ -25,10 +25,11 @@ export function getClaudeConfigJsonPath(homeDir: string): string {
 
 /**
  * Data/cache root (samples, counter resets, caches). Lives next to Claude Code's own config so
- * multi-account setups ($CLAUDE_CONFIG_DIR) get isolated caches automatically. A pre-0.4.0
- * `plugins/claude-code-ssp` is moved here on first use (see adoptLegacyDir).
+ * multi-account setups ($CLAUDE_CONFIG_DIR) get isolated caches automatically. A folder from an
+ * earlier name (`plugins/claude-code-super-statusline`, `plugins/claude-code-ssp`) is moved here on
+ * first use (see adoptLegacyDir).
  */
 export function getHudPluginDir(homeDir: string): string {
   const plugins = path.join(getClaudeConfigDir(homeDir), 'plugins');
-  return adoptLegacyDir(path.join(plugins, APP_NAME), path.join(plugins, LEGACY_APP_NAME));
+  return adoptLegacyDir(path.join(plugins, APP_NAME), ...legacyPaths(plugins));
 }

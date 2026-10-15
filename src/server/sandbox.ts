@@ -2,7 +2,7 @@
  * `serve --sandbox`: run the configurator against throwaway copies of the user's state, so browser
  * automation (or a curious click) can't change the real statusline.
  *
- * Every path the server writes is derived lazily from the environment — CLAUDE_CODE_SUPER_STATUSLINE_CONFIG (user
+ * Every path the server writes is derived lazily from the environment — CLAUDE_SUPER_STATUSLINE_CONFIG (user
  * config), CLAUDE_CONFIG_DIR (settings.json, samples, caches, reset baselines), XDG_CONFIG_HOME (user
  * widgets dir) and the process cwd (project layer) — so pointing those at a temp root before the first
  * request is enough. The real files are only ever *read*, once, to seed the copies.
@@ -16,7 +16,7 @@ import * as path from "node:path";
 import { samplesDir } from "../core/capture.js";
 import { userConfigPath } from "../core/config.js";
 import { APP_NAME, freezeLegacyDirs } from "../data/app-name.js";
-import { LEGACY_PREVIOUS_KEY, PREVIOUS_KEY, settingsPath } from "./install.js";
+import { LEGACY_PREVIOUS_KEYS, PREVIOUS_KEY, settingsPath } from "./install.js";
 
 let sandboxRoot: string | null = null;
 
@@ -63,7 +63,7 @@ export function enterServeSandbox(): { root: string; seeded: string[] } {
     const s = JSON.parse(fs.readFileSync(real.settings, "utf8")) as Record<string, unknown>;
     const subset: Record<string, unknown> = {};
     if (s.statusLine !== undefined) subset.statusLine = s.statusLine;
-    for (const key of [PREVIOUS_KEY, LEGACY_PREVIOUS_KEY]) if (s[key] !== undefined) subset[key] = s[key];
+    for (const key of [PREVIOUS_KEY, ...LEGACY_PREVIOUS_KEYS]) if (s[key] !== undefined) subset[key] = s[key];
     fs.mkdirSync(claudeDir, { recursive: true });
     fs.writeFileSync(path.join(claudeDir, "settings.json"), JSON.stringify(subset, null, 2) + "\n");
     seeded.push("statusLine from settings.json");
@@ -71,7 +71,7 @@ export function enterServeSandbox(): { root: string; seeded: string[] } {
     /* no settings yet — the sandbox starts like a fresh install */
   }
 
-  process.env.CLAUDE_CODE_SUPER_STATUSLINE_CONFIG = path.join(root, "config.json");
+  process.env.CLAUDE_SUPER_STATUSLINE_CONFIG = path.join(root, "config.json");
   process.env.CLAUDE_CONFIG_DIR = claudeDir;
   process.env.XDG_CONFIG_HOME = path.join(root, "xdg");
   const project = path.join(root, "project");
