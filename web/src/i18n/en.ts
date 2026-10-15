@@ -24,7 +24,7 @@ export const en = {
     saving: "Saving…",
     dirty: "Unsaved changes",
     defaults: "Using defaults — nothing saved yet",
-    savedLive: "Saved · live in Claude Code",
+    savedLive: "Saved · live in Claude",
     savedNotApplied: "Saved · not applied to Claude Code yet",
     saved: "Saved",
     saveFailed: "Couldn't save",

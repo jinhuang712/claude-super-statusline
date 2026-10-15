@@ -18,7 +18,7 @@ export const zh: Messages = {
     saving: "保存中…",
     dirty: "有未保存的改动",
     defaults: "正在用默认配置，还没保存过",
-    savedLive: "已保存 · Claude Code 里已生效",
+    savedLive: "已保存 · Claude 里已生效",
     savedNotApplied: "已保存 · 还没应用到 Claude Code",
     saved: "已保存",
     saveFailed: "保存失败",

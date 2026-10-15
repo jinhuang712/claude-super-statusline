@@ -52,7 +52,7 @@ function statusOf(s: ReturnType<typeof useStore.getState>, t: Messages): { state
   if (s.saveError) return { state: "error", text: t.header.saveFailed };
   if (s.saving) return { state: "saving", text: t.header.saving };
   if (isDirty(s)) return { state: "dirty", text: t.header.dirty };
-  // The demo saves to this browser only; "live in Claude Code" would be untrue there.
+  // The demo saves to this browser only; "live in Claude" would be untrue there.
   if (s.demo) return { state: "demo", text: t.header.demoSaved };
   const hasFile = s.layers.some((l) => l.name !== "defaults" && l.exists);
   if (!hasFile) return { state: "defaults", text: t.header.defaults };
