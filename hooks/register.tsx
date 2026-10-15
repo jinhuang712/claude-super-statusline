@@ -323,21 +323,23 @@ export const register: Register = on => {
     if (lines.every(l => l.left.length + l.right.length === 0)) return next(e)
     const { Box, Text } = $.ui.resolve(e)
 
-    const zone = (instances: Instance[]) =>
-      instances.flatMap((inst, i) => {
-        const segs = renderInstance(inst, ctx)
-        if (segs.length === 0) return []
-        return [
-          ...(i > 0 ? [<Text key={`sep${i}`} dimColor> │ </Text>] : []),
-          ...segs.map((s, j) => {
+    // One box per widget, never shrunk: a pane too narrow for a row moves whole widgets to the next row
+    // instead of breaking their text mid-phrase (a split view, a small window). Widgets are spaced by a
+    // gap rather than a separator glyph, which would be left dangling at the end of a wrapped row.
+    const widget = (inst: Instance, i: number) => {
+      const segs = renderInstance(inst, ctx)
+      if (segs.length === 0) return []
+      return [
+        <Box key={`${inst.def.id}${i}`} flexShrink={0}>
+          {segs.map((s, j) => {
             const bar = BAR.exec(s.text.trim())
             if (bar && bar[0].length > 0) {
               return (
-                <Box key={`${inst.def.id}${j}`} marginX={1}>
-                  <Box width={bar[1]!.length} backgroundColor={colorOf(s.style?.fg) ?? 'success'}>
+                <Box key={`${inst.def.id}${j}`} marginX={1} flexShrink={0}>
+                  <Box width={bar[1]!.length} flexShrink={0} backgroundColor={colorOf(s.style?.fg) ?? 'success'}>
                     <Text> </Text>
                   </Box>
-                  <Box width={bar[2]!.length} backgroundColor="subtle">
+                  <Box width={bar[2]!.length} flexShrink={0} backgroundColor="subtle">
                     <Text> </Text>
                   </Box>
                 </Box>
@@ -348,16 +350,22 @@ export const register: Register = on => {
                 {s.text}
               </Text>
             )
-          }),
-        ]
-      })
+          })}
+        </Box>,
+      ]
+    }
 
     return (
-      <Box flexDirection="column">
+      <Box flexDirection="column" overflow="hidden">
         {lines.map((line, i) => (
-          <Box key={`line${i}`} justifyContent="space-between">
-            <Box>{zone(line.left)}</Box>
-            <Box>{zone(line.right)}</Box>
+          <Box key={`line${i}`} flexWrap="wrap" columnGap={3}>
+            <Box flexWrap="wrap" columnGap={3}>
+              {line.left.flatMap(widget)}
+            </Box>
+            {/* Grows to fill the row, so on a row of its own it still sits at the right edge. */}
+            <Box flexGrow={1} flexWrap="wrap" justifyContent="flex-end" columnGap={3}>
+              {line.right.flatMap(widget)}
+            </Box>
           </Box>
         ))}
       </Box>
