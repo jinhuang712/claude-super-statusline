@@ -1,4 +1,4 @@
-# Installing super-statusline
+# Installing Claude Super Statusline
 
 ## Requirements
 
@@ -17,7 +17,8 @@ It checks your Claude Code version and that Bun is installed (and offers to inst
 the marketplace and installs the plugin. To install Bun without being asked, add `-s -- --yes` after `bash`. Rather
 read it first? It's [`install.sh`](install.sh) in this repo.
 
-Then, in Claude Code, run `/super-statusline:config` and pick a layout.
+Then, in Claude Code, run `/super-statusline:config` and pick a layout. The same plugin draws a band above the
+prompt in the Claude desktop app; design it on the page's *Desktop app* tab.
 
 ### By hand
 
@@ -81,7 +82,14 @@ The plugin then runs from your checkout, so a `git pull` updates it.
    claude plugin marketplace remove claude-code-super-statusline
    ```
 
-## Upgrading from claude-code-ssp
+## Upgrading from claude-code-super-statusline or claude-code-ssp
+
+The project was *claude-code-super-statusline* until 0.5.x. Nothing to do: update as above and the first run moves your
+config, caches and parked statusline to the new names. The marketplace id is still `claude-code-super-statusline`
+and the plugin id `super-statusline`, so an installed plugin stays enabled; the old GitHub repository address redirects.
+The old environment variable names (`CLAUDE_CODE_SUPER_STATUSLINE_CONFIG`, `…_DEBUG`) keep working.
+
+### From claude-code-ssp
 
 Versions up to 0.3.x were called `ssp` (`/ssp:config`).
 

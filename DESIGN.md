@@ -1,6 +1,7 @@
 # claude-super-statusline — Design
 
-A Claude Code statusline that is configured from a **localhost web UI**, built around a
+A statusline for Claude — in Claude Code the statusline under the prompt, in the Claude desktop app a band above it
+(see [The desktop band](#the-desktop-band)) — configured from a **localhost web UI**, built around a
 **widget registry** and **user plugins**, with a **zone-based layout** (left / center / right per line).
 
 ## Why not extend claude-hud
@@ -21,7 +22,7 @@ Claude Code ≥ 2.1.251 now ships `rate_limits`, `prompt_cache`, `effort`, `cost
 | `claude-super-statusline render` | stdin JSON → ANSI lines on stdout. Hot path. Imports only `core` + `widgets` + `data`. |
 | `claude-super-statusline serve [--port 4877] [--open]` | Bun.serve on 127.0.0.1 serving `web/dist` + JSON API. Lazy-imported. |
 | `claude-super-statusline serve --sandbox` | Same on `:4878` against temp copies of config, samples and statusLine (for UI work and automation). |
-| `claude-super-statusline install [--replace]` / `uninstall` | Atomic merge into `~/.claude/settings.json` (`.bak.<ts>` backup). Replacing a statusLine that isn't ours needs `--replace` (the panel asks); it is parked under `statusLine.previous.claude-super-statusline` (`…claude-code-ssp` before 0.4.0: still read, moved on the next install) and `uninstall` restores it. `uninstall` never touches a statusLine that isn't ours. |
+| `claude-super-statusline install [--replace]` / `uninstall` | Atomic merge into `~/.claude/settings.json` (`.bak.<ts>` backup). Replacing a statusLine that isn't ours needs `--replace` (the panel asks); it is parked under `statusLine.previous.claude-super-statusline` (`…claude-code-super-statusline` and `…claude-code-ssp`, its earlier names: still read, moved on the next install) and `uninstall` restores it. `uninstall` never touches a statusLine that isn't ours. |
 | `claude-super-statusline reset [--session ID]` | Baseline the session counters (default: the most recent session; the panel passes the one it previews). |
 | `claude-super-statusline doctor` | Shows effective config, layer provenance, last captured payload, render timing. |
 
@@ -94,7 +95,7 @@ any widget used it (`liftLegacyColorMode`, config.ts).
 ## Plugins
 
 `~/.config/claude-super-statusline/widgets/*.{js,ts,mjs}` and `<project>/.claude/claude-super-statusline/widgets/*`
-(or a project's pre-0.4.0 `.claude/claude-code-ssp/widgets/`, under the same trust rule) are dynamically
+(or a project's `.claude/claude-code-super-statusline/widgets/` or pre-0.4.0 `.claude/claude-code-ssp/widgets/`, under the same trust rule) are dynamically
 imported; each module's default export is a widget definition or an array of them. A plugin that throws at load or at
 render time is replaced by a dim `⚠ <id>` segment — a broken plugin never blanks the statusline.
 
@@ -105,14 +106,38 @@ you just cloned can't trust itself or point at other folders). Skipped folders a
 ## Config layering
 
 `defaults` → `~/.config/claude-super-statusline/config.json` (or `$CLAUDE_SUPER_STATUSLINE_CONFIG`) → `<cwd>/.claude/claude-super-statusline.json`.
-A project that only has the pre-0.4.0 `.claude/claude-code-ssp.json` reads and saves that one (`newOrLegacy`): project
-files may be committed, so they are never moved.
-Objects deep-merge; `lines` replaces wholesale. The web UI shows which layer set each value and lets you edit either.
+A project that only has `.claude/claude-code-super-statusline.json` (the name until the rename) or the pre-0.4.0
+`.claude/claude-code-ssp.json` reads and saves that one, the newest first (`newOrLegacy`): project files may be
+committed, so they are never moved.
+Objects deep-merge; `lines` and `desktop.lines` replace wholesale. The web UI shows which layer set each value and lets you edit either.
 Config is re-read on every render (cheap: one small JSON) so saves from the web UI apply on the next tick.
 
 The panel edits the *effective* config but saves a *layer*: it replays only the paths changed since the last save onto
 the target file (`web/src/layers.ts`), so defaults are never frozen into a file and project values never leak into the
 user file. The project is the previewed session's directory (`?cwd=`, accepted only for captured sessions).
+
+## The desktop band
+
+The Claude desktop app has no `statusLine`, so `hooks/register.tsx` is a Claude Code *mod* (a hooks module the engine
+loads from the plugin folder) that draws a band above the prompt (`ui.render` on `AbovePrompt`, raised by the
+terminal and the desktop app alike). It is a second front end for the same widgets, not a second implementation.
+
+* **Its own layout.** `desktop.lines` in the config (`src/core/desktop.ts`, which is pure so the mod can import it):
+  the model, context and project are already on screen in the app, and only `DESKTOP_WIDGETS` can run in a mod. The mod
+  parses the user config itself (`$.fs`, re-read when the file's mtime changes) and falls back to
+  `DEFAULT_DESKTOP_LINES`. The panel edits it through the *Terminal | Desktop app* switch (`linesOf(config, surface)` in
+  `web/src/store.ts`); the manifest's `desktop` flag says which widgets its tray offers.
+* **A sandbox with no Node.** A hooks module may import only its own plugin folder and `claude-code`, so a widget that
+  reaches `node:fs` or `node:os` (through any import) cannot be used: `usage.windows` and `usage.single` run unchanged
+  over a context rebuilt from `$.session` (`snapshot`), the rest are small stand-ins under the same registry ids
+  (`cost.session`, `context.promptCache` as a hit ratio, `tokens.session`, `tokens.outputSpeed`). Code that must load
+  there reads the environment through `safeEnv()` (`src/data/debug.ts`), never a bare `process.env`.
+* **Counted, not read.** Tokens, cache hits and speed come from `turn.step` (a streaming hook that wraps each model
+  request) and live in `$.state` (`types/index.d.ts` is its contract), so a reload keeps them and a restart resets them.
+* **Drawing.** The desktop app draws block glyphs as dotted cells and knows only its own colour names, so a text bar
+  (`███░░░`) becomes two background-coloured boxes and ANSI names become hex (`colorOf`).
+* **Checking it.** `claude plugin validate .`, `scripts/test-mod.sh` (the mod's tests run in a copy of the plugin without
+  the repository's own `bun:test` files) and a look at the real app: a mounted test does not show what is painted.
 
 ## Web UI (`web/`, React + Tailwind + zustand + xterm.js + dnd-kit)
 
@@ -201,8 +226,11 @@ Claude Code debounces at 300 ms and kills in-flight scripts. Target **< 40 ms wa
 `$CLAUDE_CONFIG_DIR/plugins/claude-super-statusline/` (defaults to `~/.claude/plugins/claude-super-statusline/`):
 transcript-cache, context-cache, config-cache, samples. Files 0600, dirs 0700, temp+rename writes (inherited conventions).
 
-**Folders from before 0.4.0** (`claude-code-ssp`, for this data root and for `~/.config/…`) are moved to the new name the
-first time they are looked up (`adoptLegacyDir` in `src/data/app-name.ts`): a single rename between siblings, so nothing
-is half-moved; if the rename fails the old folder stays in use rather than the user starting over from defaults.
+**Folders under an earlier name** (`claude-code-super-statusline` until the rename, `claude-code-ssp` before 0.4.0; for this
+data root and for `~/.config/…`) are moved to the new name the first time they are looked up (`adoptLegacyDir` in
+`src/data/app-name.ts`, which takes the earlier names newest first): a single rename between siblings, so nothing is
+half-moved; if the rename fails the old folder stays in use rather than the user starting over from defaults. The
+parked-statusLine key in `settings.json` and the `CLAUDE_*_CONFIG` / `_DEBUG` variables follow the same rule: the new name
+wins, the old ones are still read.
 `serve --sandbox` turns the move off (`freezeLegacyDirs`): it only reads the real folders, and an older install may still
 be the live statusline.

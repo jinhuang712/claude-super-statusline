@@ -4,6 +4,21 @@ Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace 
 
 ## Unreleased
 
+- **Renamed: Claude Super Statusline.** It is no longer only for Claude Code, so *claude-code-super-statusline* is now
+  *claude-super-statusline*: the repository, the demo site (`jinhuang712.github.io/claude-super-statusline/`), the clone
+  directory, the CLI's messages and the folders it keeps on disk (`~/.config/claude-super-statusline`,
+  `~/.claude/plugins/claude-super-statusline`, `.claude/claude-super-statusline.json`). **Nothing to do on your side:** the first
+  run moves an existing config, caches and parked statusline over (whichever of the two older names they are under), a
+  project's old overlay file or widgets folder is read and saved where it is, `CLAUDE_CODE_SUPER_STATUSLINE_CONFIG` and
+  `…_DEBUG` still work (the new `CLAUDE_SUPER_STATUSLINE_*` win), and the old GitHub address redirects. The plugin id
+  (`super-statusline`, `/super-statusline:config`) and the marketplace id (`claude-code-super-statusline`) are unchanged, so
+  an installed plugin stays enabled and keeps updating. The old demo-site address does not redirect.
+- **The panel says "live in Claude"**, not "in Claude Code", since a saved layout now reaches the desktop app too; the
+  wordmark's cursor blinks for as long as the page is open, and a click on it pauses it (remembered).
+- **The desktop band no longer draws the bar's filled part as an invisible gap** when its colour is a terminal name such
+  as `brightBlue`: ANSI names are drawn as hex.
+- **README, docs and the landing page** describe both places it shows up, with new screenshots of the panel's *Desktop
+  app* tab and of the band in the desktop app.
 - **A band above the prompt for the desktop app.** The plugin is now also a Claude Code mod: rate-limit bars, session
   cost, prompt-cache hit ratio, tokens and output speed, drawn above the prompt in the desktop app and the terminal.
   The CLI statusline is unchanged. The *Terminal | Desktop app* switch beside the preview designs the band: its own `desktop.lines`,

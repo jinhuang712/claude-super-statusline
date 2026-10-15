@@ -1,6 +1,6 @@
 {
   "name": "super-statusline",
-  "description": "Claude Code statusline with a localhost web configurator: /super-statusline:config opens it",
+  "description": "Claude Super Statusline: a statusline for Claude Code and a band for the Claude desktop app, designed in a localhost web UI — /super-statusline:config opens it",
   "version": "0.5.3",
   "author": {
     "name": "Jin Huang",
@@ -14,7 +14,9 @@
     "hud",
     "web-ui",
     "widgets",
-    "claude-code"
+    "claude",
+    "claude-code",
+    "claude-desktop"
   ],
   "commands": [
     "./commands/config.md"

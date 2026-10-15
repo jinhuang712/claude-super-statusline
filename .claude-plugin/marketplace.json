@@ -4,20 +4,21 @@
     "name": "Jin Huang"
   },
   "metadata": {
-    "description": "Claude Code statusline configured from a localhost web UI",
+    "description": "Claude Super Statusline: a statusline for Claude Code and a band for the Claude desktop app, configured from a localhost web UI",
     "version": "0.5.3"
   },
   "plugins": [
     {
       "name": "super-statusline",
       "source": "./",
-      "description": "Statusline + web configurator: /super-statusline:config",
+      "description": "Statusline for Claude Code, band for the Claude desktop app, and a web configurator: /super-statusline:config",
       "category": "monitoring",
       "tags": [
         "statusline",
         "hud",
         "web-ui",
-        "widgets"
+        "widgets",
+        "claude-desktop"
       ]
     }
   ]

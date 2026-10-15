@@ -1,4 +1,4 @@
-# super-statusline for power users
+# Claude Super Statusline for power users
 
 Everything the configurator page does can also be done by hand. For how it works inside, see [DESIGN.md](DESIGN.md).
 
@@ -6,7 +6,9 @@ Everything the configurator page does can also be done by hand. For how it works
 
 The page writes `~/.config/claude-super-statusline/config.json`. A project can override it with
 `.claude/claude-super-statusline.json` (choose which one the page saves to in its header). Objects merge,
-`lines` replaces wholesale, and both files are re-read on every refresh.
+`lines` and `desktop.lines` replace wholesale, and both files are re-read on every refresh. The folder was
+`~/.config/claude-code-super-statusline/` before the rename and is moved on the first run; `CLAUDE_SUPER_STATUSLINE_CONFIG`
+points at another file (`CLAUDE_CODE_SUPER_STATUSLINE_CONFIG`, its old name, still works).
 
 ```jsonc
 {

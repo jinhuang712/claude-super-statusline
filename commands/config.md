@@ -1,5 +1,5 @@
 ---
-description: Open the super-statusline web configurator (starts the local server if needed)
+description: Open the Claude Super Statusline web configurator (starts the local server if needed)
 allowed-tools: Bash(bash ${CLAUDE_PLUGIN_ROOT}/scripts/super-statusline.sh:*)
 ---
 

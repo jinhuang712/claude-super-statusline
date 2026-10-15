@@ -9,7 +9,7 @@
  * markup as the English (<em>, <kbd>, <code>, <a>) and are only ever this file's own strings.
  */
 export const ZH: Record<string, string> = {
-  "doc.title": "super-statusline — 在浏览器里设计你的 Claude Code 状态栏",
+  "doc.title": "Claude Super Statusline — 在浏览器里设计你的 Claude 状态栏",
   skip: "跳到正文",
   "nav.aria": "网站",
   "nav.presets": "预设",
@@ -22,9 +22,9 @@ export const ZH: Record<string, string> = {
   "pref.light": "浅色",
   "pref.dark": "深色",
 
-  "hero.kicker": "Claude Code 插件 · 开源，MIT 协议",
+  "hero.kicker": "适用于 Claude Code 和 Claude 桌面端 · 开源，MIT 协议",
   // Kept-together runs: Chinese breaks between any two characters, and "设 / 计" split a word on a phone.
-  "hero.title": '<span class="lp-nowrap"><em>在浏览器里</em>设计</span><br class="lp-desk" /><span class="lp-nowrap">你的</span> Claude Code <span class="lp-nowrap">状态栏</span>',
+  "hero.title": '<span class="lp-nowrap"><em>在浏览器里</em>设计</span><br class="lp-desk" /><span class="lp-nowrap">你的</span> Claude <span class="lp-nowrap">状态栏</span>',
   "hero.lead": "选一个预设，把组件拖到想要的位置，真实的状态栏会对着你自己的会话实时重绘——不用手改 JSON。",
   "hero.try": "试用配置器",
   "hero.see": "看看效果",

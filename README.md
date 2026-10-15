@@ -1,9 +1,13 @@
 <h1 align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/images/banner-light.png">
-    <img alt="super-statusline — a Claude Code statusline you design in your browser, against your real session" src="docs/images/banner-dark.png">
+    <img alt="Claude Super Statusline — a Claude statusline you design in your browser, against your real session" src="docs/images/banner-dark.png">
   </picture>
 </h1>
+
+<p align="center"><b>Claude Super Statusline</b> gives Claude a statusline you design in your browser.<br>
+In <b>Claude Code</b> it is the statusline under the prompt; in the <b>Claude desktop app</b> it is a band above it.<br>
+One configurator, one config file, both places.</p>
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/images/presets-light.png">
@@ -22,6 +26,20 @@ curl -fsSL https://raw.githubusercontent.com/jinhuang712/claude-super-statusline
 Then run `/super-statusline:config` in Claude Code and pick a layout. The script checks for [Bun](https://bun.sh)
 (and offers to install it); run it again any time to update. Installing by hand, uninstalling and upgrading:
 [INSTALL.md](INSTALL.md).
+
+## Where it shows up
+
+| | Claude Code (terminal) | Claude desktop app |
+|---|---|---|
+| **What it is** | The statusline under the prompt | A band above the prompt, drawn by a Claude Code [mod](#in-the-claude-desktop-app) |
+| **Designed in** | The panel's *Terminal* tab | The panel's *Desktop app* tab |
+| **Saved as** | `lines` | `desktop.lines` |
+| **Widgets** | All of them, below | The six a mod can draw |
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/images/desktop-light.png">
+  <img alt="The configurator on the Desktop app tab: the preview shows the band's one row, and the layout below holds Rate-limit windows on the left and Prompt cache, Output speed and Session cost on the right" src="docs/images/desktop-dark.png">
+</picture>
 
 ## Drag and drop
 
@@ -42,9 +60,10 @@ Start from a preset, then arrange it by hand — the preview redraws as you go:
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/images/configurator-light.png">
-  <img alt="The configurator: a live preview of the statusline, Style (theme, bar glyphs, progress bar mode, separator) and Layout presets" src="docs/images/configurator-dark.png">
+  <img alt="The configurator on the Terminal tab: a live preview of the statusline, Style (theme, bar glyphs, progress bar mode, separator) and Layout presets" src="docs/images/configurator-dark.png">
 </picture>
 
+* **Terminal or Desktop app** — the switch beside the preview picks which layout you are editing.
 * **Layout** — *Minimal*, *Standard* or *Full*, or *Custom* to build your own lines by dragging.
 * **Color theme** — default, nord, dracula, gruvbox, tokyo-night, catppuccin, mono.
 * **Progress bars** — the bar glyphs: full block, tall, low, half, slanted, squares, line, dots.
@@ -78,7 +97,7 @@ The preview shows your real session; hover a choice to try it before you click. 
 | Model badge | The model, with effort level, provider and fast mode if you like |
 | Effort level | Reasoning effort as a symbol and/or word |
 | Context usage | How full the context window is: bar, percentage, tokens |
-| Prompt cache | Whether the prompt cache is warm, and when it expires |
+| Prompt cache | Whether the prompt cache is warm, and when it expires (in the desktop band: the hit ratio) |
 | Cache misses | Cache misses out of all requests, and why the last one happened |
 | Compactions | How many times the session was compacted |
 | Over 200k tokens | A flag while the last request was over 200k tokens |
@@ -133,24 +152,35 @@ The preview shows your real session; hover a choice to try it before you click. 
 | Environment variable | The value of a variable, e.g. `AWS_PROFILE` |
 | Clock | The current time |
 
-## In the desktop app
+## In the Claude desktop app
 
 The desktop app has no `statusLine`, so the plugin also ships as a Claude Code *mod* (`hooks/`): a band above the
-prompt, drawn by the same widget code, on the desktop app and in the terminal alike.
+prompt, drawn by the same widget code. It also draws in the terminal, where the statusline stays as it is.
 
-* **What it shows** — by default one row: short 5-hour and weekly rate-limit bars with their reset times on the left, the prompt-cache hit
-  ratio, output speed and session cost on the right. The model, context and project are left out because the desktop
-  app already shows them; tokens used and the rest are one click away in the panel.
-* **Design it in the panel** — the *Terminal | Desktop app* switch beside the preview edits the band's own layout (saved as `desktop.lines`, apart
-  from the terminal's `lines`) with the same drag and drop, from the six widgets a mod can draw: rate-limit windows
-  (all or one), session cost, prompt cache, session tokens and output speed. The mod re-reads the file as it changes.
-  The preview draws it as text; the app itself draws the bars as coloured blocks.
+<img alt="The band in the Claude desktop app, above the prompt: 5-hour and weekly rate-limit bars with reset times, cost, prompt-cache hit ratio, tokens used and output speed" src="docs/images/desktop-band.png">
+
+* **What it shows** — by default one row: short 5-hour and weekly rate-limit bars with their reset times on the left,
+  the prompt-cache hit ratio, output speed and session cost on the right. The model, context and project are left out
+  because the desktop app already shows them; tokens used and the rest are one click away in the panel. The picture
+  above is a two-row layout built in the panel.
+* **Design it in the panel** — the *Terminal | Desktop app* switch beside the preview edits the band's own layout
+  (saved as `desktop.lines`, apart from the terminal's `lines`) with the same drag and drop, from the six widgets a mod
+  can draw: rate-limit windows (all or one), session cost, prompt cache, session tokens and output speed. The mod
+  re-reads the file as it changes. The preview draws it as text; the app itself draws the bars as coloured blocks.
 * **What it counts itself** — a mod cannot read the statusline payload, so tokens, cache hits and speed are counted
   from each model request since the session started (a restart begins again from zero).
 * **Limits** — a mod cannot import Node modules, so the widgets that read files or run git (project path, branch,
   changes, session cost estimates) are not available in it yet, and the Style settings (theme, bars, separator) do not
-  apply to it.
+  apply to it. It was built and tried on Claude Code 2.1.299.
 * **Tests** — `scripts/test-mod.sh` runs `hooks/*.test.ts` with `claude plugin test`; `bun test` skips `hooks/`.
+
+## Formerly claude-code-super-statusline
+
+The project was called *claude-code-super-statusline* (and *claude-code-ssp* before that) until it learned to draw in
+the desktop app too. Nothing to do on your side: the first run moves your config, caches and parked statusline over
+to the new names, the old environment variables still work, and the plugin id (`super-statusline`) and the
+marketplace id are unchanged, so an installed plugin stays enabled and updates as before. The old GitHub repository
+address redirects; the old demo-site address does not, use [the new one](https://jinhuang712.github.io/claude-super-statusline/).
 
 ## More
 
