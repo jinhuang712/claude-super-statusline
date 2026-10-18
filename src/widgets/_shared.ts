@@ -1,5 +1,5 @@
 import type { StdinData } from "../data/types.js";
-import type { Ctx, JsonSchema } from "../core/types.js";
+import type { Color, Ctx, JsonSchema, WidgetApi } from "../core/types.js";
 
 /** Fields Claude Code ≥ 2.1.251 sends that the harvested StdinData type does not declare yet. */
 export interface StdinExtras {
@@ -81,6 +81,18 @@ export function thresholdSchema(warn: number, crit: number, opts: { critBolds?: 
     warnAt: { type: "integer", title: "Warn at %", minimum: 0, maximum: 100, default: warn, ...thresholdsOnly },
     critAt: { type: "integer", title: "Critical at %", minimum: 0, maximum: 100, default: crit, ...(opts.critBolds === false ? thresholdsOnly : {}) },
   };
+}
+
+/**
+ * The colour of a prompt-cache hit ratio (0–100), for the statusline and the desktop band alike. A
+ * high ratio is the good end, so the level is taken on the miss share: below 70% served from the
+ * cache it warns, below 40% it is critical.
+ *
+ * Always the ok / warn / crit tokens, even under `colorMode: "gradient"`: the gradient runs from grey
+ * at 0% used to red at 100%, so a healthy 1–2% miss share would be drawn grey, as if uncoloured.
+ */
+export function hitRatioColor(api: WidgetApi, pct: number): Color {
+  return api.level(100 - pct, 30, 60);
 }
 
 /**

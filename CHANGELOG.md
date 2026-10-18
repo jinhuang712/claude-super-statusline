@@ -6,6 +6,9 @@ Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace 
 
 - **The band above the prompt is drawn in the desktop app only.** In the terminal the statusline under the prompt
   already shows the same figures, so the band no longer adds a second row of them above it.
+- **Prompt cache and Output speed are coloured.** The `cache` label is in the accent; the countdown takes the dot's
+  colour (green, yellow in the last minute); the hit ratio is green, yellow below 70% and red below 40% (in the
+  gradient progress-bar mode too); `tok/s` is in the usage colour. All four were grey before.
 
 ## 0.6.0 — 2026-10-16
 

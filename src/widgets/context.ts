@@ -2,7 +2,7 @@ import { defineWidget } from "../core/types.js";
 import { getContextPercent, getTotalTokens } from "../data/stdin.js";
 import { formatTokens } from "../core/api.js";
 import { sanitizeDisplayText } from "../data/utils/sanitize.js";
-import { labelPrefix, labelSchema, stdin, thresholdSchema, withLabel } from "./_shared.js";
+import { hitRatioColor, labelPrefix, labelSchema, stdin, thresholdSchema, withLabel } from "./_shared.js";
 
 type ValueMode = "percent" | "tokens" | "remaining" | "both";
 
@@ -125,6 +125,12 @@ export const contextCompactions = defineWidget<{ label: string | null }>({
   },
 });
 
+/**
+ * The colour of a warm cache's dot and countdown: `ok`, or `warn` in its last minute, when the next
+ * request may already find it cold.
+ */
+const aliveColor = (remainingMs: number) => (remainingMs < 60_000 ? "warn" : "ok");
+
 export const promptCache = defineWidget<{ label: string | null; showHitRatio: boolean; showTtl: boolean; showRecache: boolean }>({
   id: "context.promptCache",
   name: "Prompt cache",
@@ -144,18 +150,24 @@ export const promptCache = defineWidget<{ label: string | null; showHitRatio: bo
   render(ctx, o, api) {
     const pc = stdin(ctx).prompt_cache;
     const label = withLabel(o.label, "cache");
-    const segs = label ? [api.seg(`${label} `, { fg: "muted" })] : [];
+    // The label is in the accent, not muted like most labels, so the cache reads apart from the context
+    // figures beside it.
+    const segs = label ? [api.seg(`${label} `, { fg: "accent" })] : [];
     if (pc) {
       if (!pc.caching_observed) return null;
       if (pc.warm && pc.expires_at) {
         const remaining = pc.expires_at * 1000 - ctx.now;
-        segs.push(api.seg("●", { fg: remaining < 60_000 ? "warn" : "ok" }), api.seg(` ${api.duration(Math.max(0, remaining))}`, { fg: "fg" }));
+        const alive = aliveColor(remaining);
+        segs.push(api.seg("●", { fg: alive }), api.seg(` ${api.duration(Math.max(0, remaining))}`, { fg: alive }));
         // The lifetime the countdown runs down from ("5m" or "1h"), only meaningful while warm.
         if (o.showTtl && pc.ttl) segs.push(api.seg(`/${sanitizeDisplayText(pc.ttl)}`, { fg: "muted" }));
       } else {
         segs.push(api.seg("○ cold", { fg: "muted" }));
       }
-      if (o.showHitRatio && typeof pc.hit_ratio === "number") segs.push(api.seg(` ${Math.round(pc.hit_ratio * 100)}%`, { fg: "muted" }));
+      if (o.showHitRatio && typeof pc.hit_ratio === "number") {
+        const pct = Math.round(pc.hit_ratio * 100);
+        segs.push(api.seg(` ${pct}%`, { fg: hitRatioColor(api, pct) }));
+      }
       // recache_tokens_if_cold: what the next request pays to rebuild the cache if it has gone cold by
       // then — the cost of stepping away. null right after a compaction, until the next request.
       if (o.showRecache && typeof pc.recache_tokens_if_cold === "number") segs.push(api.seg(` ↻${api.tokens(pc.recache_tokens_if_cold)}`, { fg: "muted" }));
@@ -167,7 +179,8 @@ export const promptCache = defineWidget<{ label: string | null; showHitRatio: bo
     const ttl = (ctx.transcript.promptCacheTtlSeconds ?? 300) * 1000;
     const remaining = anchor.getTime() + ttl - ctx.now;
     if (remaining <= 0) return [...segs, api.seg("○ cold", { fg: "muted" })];
-    return [...segs, api.seg("●", { fg: remaining < 60_000 ? "warn" : "ok" }), api.seg(` ${api.duration(remaining)}`)];
+    const alive = aliveColor(remaining);
+    return [...segs, api.seg("●", { fg: alive }), api.seg(` ${api.duration(remaining)}`, { fg: alive })];
   },
 });
 

@@ -110,6 +110,8 @@ export const tokensSpeed = defineWidget<{ label: string | null }>({
     const speed = ctx.responseSpeed?.tokensPerSecond;
     if (typeof speed !== "number" || !Number.isFinite(speed)) return null;
     const label = withLabel(o.label, "");
-    return [...(label ? [api.seg(`${label} `, { fg: "muted" })] : []), api.seg(`${speed.toFixed(speed < 10 ? 1 : 0)} tok/s`, { fg: "muted" })];
+    // In the usage colour rather than by level: what counts as fast depends on the model (a Haiku reply
+    // runs several times an Opus one), so no one threshold would mean "slow" for all of them.
+    return [...(label ? [api.seg(`${label} `, { fg: "muted" })] : []), api.seg(`${speed.toFixed(speed < 10 ? 1 : 0)} tok/s`, { fg: "usage" })];
   },
 });
