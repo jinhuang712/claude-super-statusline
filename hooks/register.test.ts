@@ -1,8 +1,9 @@
 /**
  * Tests for the mod (run with `scripts/test-mod.sh`, not `bun test`: it imports the plugin test kit,
- * which only exists inside `claude plugin test`). The band must draw on both surfaces that raise
- * AbovePrompt, in a fresh session with nothing to show yet, and with data at a wide and a very narrow
- * width: a split view or a small window must move whole widgets to another row, not lose them.
+ * which only exists inside `claude plugin test`). The band must draw in the desktop app, in a fresh
+ * session with nothing to show yet, and with data at a wide and a very narrow width: a split view or a
+ * small window must move whole widgets to another row, not lose them. In the terminal, which has the
+ * statusline under the prompt, it must leave the engine's own drawing in place.
  */
 import type { On, RenderElement } from 'claude-code'
 import { describe, expect, mock, test } from 'claude-code/testing'
@@ -28,13 +29,18 @@ const mountBand = ($: Parameters<Parameters<typeof test>[1]>[0], surface: 'termi
   })
 
 describe('super-statusline band', () => {
-  for (const surface of ['terminal', 'desktop'] as const) {
-    test(`draws on the ${surface} surface before there is anything to show`, async ($, on) => {
-      engine(on, { rateLimits: [] })
-      const drawing = await mountBand($, surface)
-      expect(drawing).toBeDefined()
-    })
-  }
+  test("draws in the desktop app before there is anything to show", async ($, on) => {
+    engine(on, { rateLimits: [] });
+    const drawing = await mountBand($, "desktop");
+    expect(drawing).toBeDefined();
+  });
+
+  test("leaves the terminal to the engine, even with something to show", async ($, on) => {
+    engine(on, { rateLimits: [{ kind: "five_hour", percentUsed: 61, resetsAt: "2030-01-01T05:00:00Z" }], cost: { usd: 2.73 } });
+    const drawing = await mountBand($, "terminal");
+    expect(await drawing.findAll({ type: "Text", text: /engine default/ })).toHaveLength(1);
+    expect(await drawing.findAll({ type: "Text", text: /61%|\$2\.73/ })).toHaveLength(0);
+  });
 
   for (const bodyColumns of [24, 160]) {
     test(`keeps every widget at ${bodyColumns} columns`, async ($, on) => {

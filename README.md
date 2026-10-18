@@ -155,7 +155,8 @@ The preview shows your real session; hover a choice to try it before you click. 
 ## In the Claude desktop app
 
 The desktop app has no `statusLine`, so the plugin also ships as a Claude Code *mod* (`hooks/`): a band above the
-prompt, drawn by the same widget code. It also draws in the terminal, where the statusline stays as it is.
+prompt, drawn by the same widget code. It draws in the desktop app only: in the terminal the statusline under the
+prompt already shows the same figures.
 
 <img alt="The band in the Claude desktop app, above the prompt: 5-hour and weekly rate-limit bars with reset times, cost, prompt-cache hit ratio, tokens used and output speed" src="docs/images/desktop-band.png">
 

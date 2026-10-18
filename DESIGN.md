@@ -119,8 +119,10 @@ user file. The project is the previewed session's directory (`?cwd=`, accepted o
 ## The desktop band
 
 The Claude desktop app has no `statusLine`, so `hooks/register.tsx` is a Claude Code *mod* (a hooks module the engine
-loads from the plugin folder) that draws a band above the prompt (`ui.render` on `AbovePrompt`, raised by the
-terminal and the desktop app alike). It is a second front end for the same widgets, not a second implementation.
+loads from the plugin folder) that draws a band above the prompt (`ui.render` on `AbovePrompt`). The terminal raises
+that event too, but it already has the statusline under the prompt, so the hook hands `e.surface === 'terminal'` back
+to the engine (`next(e)`). `e.surface` is asked per draw, so a session shown in a terminal and the app at once still
+gets the band in the app. It is a second front end for the same widgets, not a second implementation.
 
 * **Its own layout.** `desktop.lines` in the config (`src/core/desktop.ts`, which is pure so the mod can import it):
   the model, context and project are already on screen in the app, and only `DESKTOP_WIDGETS` can run in a mod. The mod

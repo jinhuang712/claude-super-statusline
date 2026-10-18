@@ -1,7 +1,7 @@
 /**
- * super-statusline as a mod: the same widgets, drawn in the band above the prompt on every surface
- * that raises `AbovePrompt` (the terminal and the desktop app). The CLI's own `statusLine` command
- * (src/cli) is untouched and keeps working beside it.
+ * super-statusline as a mod: the same widgets, drawn in the band above the prompt in the desktop app,
+ * which has no `statusLine`. The terminal is left alone: there the CLI's own `statusLine` command
+ * (src/cli) already draws under the prompt, and a band above it would show the same figures twice.
  *
  * A mod runs without Node, so it cannot read Claude Code's stdin payload. `snapshot` rebuilds the
  * fields the widgets read from `$.session`, and the widgets run unchanged. What `$.session` does not
@@ -316,7 +316,9 @@ export const register: Register = on => {
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    if (e.props.hasSurvey) return next(e)
+    // The terminal has the statusline under the prompt. `e.surface` is asked per draw, so a session
+    // shown in a terminal and the app at once still gets the band in the app.
+    if (e.surface === "terminal" || e.props.hasSurvey) return next(e);
 
     const ctx = await snapshot($, await read($, stats))
     const lines = toLines(await loadLines($))

@@ -2,6 +2,11 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
+## Unreleased
+
+- **The band above the prompt is drawn in the desktop app only.** In the terminal the statusline under the prompt
+  already shows the same figures, so the band no longer adds a second row of them above it.
+
 ## 0.6.0 — 2026-10-16
 
 - **In a narrow pane (a split view, a small window) the desktop band moves whole widgets to another row** instead of
