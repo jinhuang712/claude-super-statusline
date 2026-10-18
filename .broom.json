@@ -1,0 +1,6 @@
+{
+  // broom formats only the changed lines, and oxfmt sorts package.json keys within that range without
+  // removing the original line: bumping "version" left "private" (then "license") in the file twice.
+  // Read as JSONC by broom, so this comment is allowed.
+  "exclude": ["**/package.json"]
+}
