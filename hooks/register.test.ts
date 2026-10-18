@@ -52,4 +52,18 @@ describe('super-statusline band', () => {
       expect((await drawing.findAll({ type: 'Text', text: /\$2\.73/ })).length).toBeGreaterThan(0)
     })
   }
+
+  test("colours the cache and the speed as the statusline does", async ($, on) => {
+    engine(on, { rateLimits: [] });
+    // A response whose prompt the cache served 98% of (980 of 1000 tokens), at 80 tokens a second,
+    // answered as what the band counted: the test's hooks sit beneath it, so it reads this.
+    const last = { input: 10, output: 400, cacheRead: 980, cacheWrite: 10 };
+    on("state.get", { plugin: "super-statusline", key: "stats" }, () => ({ value: { value: { total: last, last, speed: 80 }, version: 1 } }) as never);
+    const drawing = await mountBand($, "desktop");
+    const color = async (text: RegExp) => (await drawing.find({ type: "Text", text }))?.props.color;
+    // The default theme's tokens, as the band draws them (ANSI names as hex).
+    expect(await color(/^Cache $/)).toBe("#2bb5c4"); // accent: cyan
+    expect(await color(/^98%$/)).toBe("#3fa34d"); // ok: green
+    expect(await color(/tok\/s/)).toBe("#6ea8ff"); // usage: brightBlue
+  });
 })

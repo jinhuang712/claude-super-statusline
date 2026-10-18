@@ -15,7 +15,7 @@ import { THEMES } from '../src/core/theme.ts'
 import { defineWidget } from '../src/core/types.ts'
 import type { Ctx, LineConfig, Segment, WidgetDefinition, WidgetInstance } from '../src/core/types.ts'
 import { DEFAULT_DESKTOP_LINES, readDesktopLines } from '../src/core/desktop.ts'
-import { withLabel } from '../src/widgets/_shared.ts'
+import { hitRatioColor, withLabel } from "../src/widgets/_shared.ts";
 import { usageSingle, usageWindows } from '../src/widgets/usage.ts'
 import type { Stats, Tokens } from '../types'
 
@@ -73,15 +73,14 @@ const cache = defineWidget<Labelled>({
   render(ctx, o, api) {
     const { last, total } = (ctx as ModCtx).stats
     const now = last && hitRatio(last)
-    if (now == null) return null
-    // A high hit ratio is the good end, so the level is taken on the miss share.
-    const pct = Math.round(now * 100)
-    const lvl = api.level(100 - pct, 30, 60)
-    const avg = hitRatio(total)
+    if (now == null) return null;
+    const pct = Math.round(now * 100);
+    const avg = hitRatio(total);
     const label = withLabel(o.label, 'Cache')
+    // Coloured as the statusline's Prompt cache is: the label in the accent, the ratio by its level.
     return [
-      ...(label ? [api.seg(`${label} `, { fg: 'muted' })] : []),
-      api.seg(`${pct}%`, { fg: api.levelColor(100 - pct, lvl, 'ok') }),
+      ...(label ? [api.seg(`${label} `, { fg: "accent" })] : []),
+      api.seg(`${pct}%`, { fg: hitRatioColor(api, pct) }),
       ...(avg == null ? [] : [api.seg(` avg ${Math.round(avg * 100)}%`, { fg: 'muted' })]),
     ]
   },
@@ -117,7 +116,8 @@ const speed = defineWidget<Record<string, never>>({
   render(ctx, _o, api) {
     const tps = (ctx as ModCtx).stats.speed
     if (tps == null || !Number.isFinite(tps)) return null
-    return [api.seg(`${tps.toFixed(tps < 10 ? 1 : 0)} tok/s`, { fg: 'muted' })]
+    // The usage colour, as in the statusline's Output speed.
+    return [api.seg(`${tps.toFixed(tps < 10 ? 1 : 0)} tok/s`, { fg: "usage" })];
   },
 })
 
