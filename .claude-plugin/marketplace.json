@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Claude Super Statusline: a statusline for Claude Code and a band for the Claude desktop app, configured from a localhost web UI",
-    "version": "0.6.0"
+    "version": "0.6.1"
   },
   "plugins": [
     {

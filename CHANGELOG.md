@@ -2,7 +2,7 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
-## Unreleased
+## 0.6.1 — 2026-10-18
 
 - **The band above the prompt is drawn in the desktop app only.** In the terminal the statusline under the prompt
   already shows the same figures, so the band no longer adds a second row of them above it.
