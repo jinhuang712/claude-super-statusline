@@ -2,7 +2,7 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
-## Unreleased
+## 0.6.2 — 2026-10-28
 
 - **"Rate-limit windows" can show the 7-day pace.** Switch on _Show 7-day pace_ and the 7d figure is followed by
   `pace 71%`: how much of the week you would have used by now if you spent it evenly (100/7 = 14.3% a day). It turns

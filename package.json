@@ -1,6 +1,6 @@
 {
   "name": "claude-super-statusline",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Claude Super Statusline: a statusline for Claude Code and a band for the Claude desktop app, with a localhost web configurator, widget registry and user plugins",
   "private": true,
   "type": "module",
