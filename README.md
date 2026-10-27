@@ -106,7 +106,7 @@ The preview shows your real session; hover a choice to try it before you click. 
 
 | Widget | Shows |
 |---|---|
-| Rate-limit windows | 5-hour, 7-day and spend-limit usage (Pro/Max), with reset times |
+| Rate-limit windows | 5-hour, 7-day and spend-limit usage (Pro/Max), with reset times; optional 7-day "pace", the share you'd have used by now if spread evenly |
 | Session tokens | Tokens used this session, subagents included, with an in/out/cache breakdown |
 | Output speed | Tokens per second of the latest reply, subagents included |
 | Session cost | What the session has cost |

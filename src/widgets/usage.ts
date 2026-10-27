@@ -29,6 +29,19 @@ function absoluteReset(when: number, now: number): string {
   return sameDay ? hm : `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
 }
 
+const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+/**
+ * How much of the 7-day budget an even spend would have used by now: the elapsed share of the window
+ * as a percentage (100/7 = 14.3% per day). Claude Code only reports the reset time, so the window
+ * start is derived from it. Clamped, because a stale reset (already past) or clock skew must not
+ * print a pace outside 0-100%.
+ */
+export function weekPace(resetsAtMs: number, now: number): number {
+  const elapsed = WEEK_MS - (resetsAtMs - now);
+  return Math.min(100, Math.max(0, (elapsed / WEEK_MS) * 100));
+}
+
 export const usageWindows = defineWidget<{
   label: string | null;
   show5h: boolean;
@@ -38,7 +51,7 @@ export const usageWindows = defineWidget<{
   barWidth: number;
   showReset: boolean;
   resetFormat: "relative" | "absolute";
- 
+  showPace: boolean;
   value: "used" | "remaining";
   warnAt: number;
   critAt: number;
@@ -59,11 +72,25 @@ export const usageWindows = defineWidget<{
       barWidth: { type: "integer", default: 8, minimum: 3, maximum: 30, title: "Bar width", "x-requires": { bar: true } },
       showReset: { type: "boolean", default: true, title: "Show reset time" },
       resetFormat: { type: "string", enum: ["relative", "absolute"], default: "relative", title: "Reset time format", "x-requires": { showReset: true } },
+      showPace: { type: "boolean", default: false, title: "Show 7-day pace (share used by now if spread evenly)" },
       value: { type: "string", enum: ["used", "remaining"], default: "used", title: "Value" },
       ...thresholdSchema(70, 90),
     },
   },
-  defaults: { label: "Usage", show5h: true, show7d: true, showSpend: true, bar: false, barWidth: 8, showReset: true, resetFormat: "relative", value: "used", warnAt: 70, critAt: 90 },
+  defaults: {
+    label: "Usage",
+    show5h: true,
+    show7d: true,
+    showSpend: true,
+    bar: false,
+    barWidth: 8,
+    showReset: true,
+    resetFormat: "relative",
+    showPace: false,
+    value: "used",
+    warnAt: 70,
+    critAt: 90,
+  },
   numeric: (ctx) => {
     const ws = windows(ctx).map((w) => w.pct ?? 0);
     return ws.length ? Math.max(...ws) : null;
@@ -95,6 +122,11 @@ export const usageWindows = defineWidget<{
       }
       if (o.bar) segs.push(api.seg(api.bar(pct, o.barWidth) + " ", { fg: api.levelColor(pct, lvl, "usage") }));
       segs.push(api.seg(`${shown}%`, { fg: api.levelColor(pct, lvl, "fg"), bold: lvl === "crit" }));
+      if (o.showPace && w.key === "7d" && w.resetsAt) {
+        // Above the even-spend line the week's allowance runs out early at this rate: warn, else stay quiet.
+        const pace = weekPace(w.resetsAt * 1000, ctx.now);
+        segs.push(api.seg(` pace ${Math.round(pace)}%`, { fg: pct > pace ? "warn" : "muted" }));
+      }
       if (o.showReset && resetTxt) segs.push(api.seg(` (${resetTxt})`, { fg: "muted" }));
     });
     return segs;
