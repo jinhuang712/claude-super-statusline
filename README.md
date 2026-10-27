@@ -154,6 +154,10 @@ The preview shows your real session; hover a choice to try it before you click. 
 
 ## In the Claude desktop app
 
+> **Switched off for now.** The band is not drawn and the panel has no _Desktop app_ tab; the code is kept. To bring
+> it back, set `DESKTOP_BAND_ENABLED` in `hooks/register.tsx` and `DESKTOP_ENABLED` in
+> `web/src/components/SurfaceSwitch.tsx` to `true`, then `bun run build:web`.
+
 The desktop app has no `statusLine`, so the plugin also ships as a Claude Code *mod* (`hooks/`): a band above the
 prompt, drawn by the same widget code. It draws in the desktop app only: in the terminal the statusline under the
 prompt already shows the same figures.

@@ -2,6 +2,12 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
+## Unreleased
+
+- **The desktop band is switched off.** It is no longer drawn above the prompt, and the panel's _Terminal | Desktop
+  app_ switch is gone, so the panel edits the terminal layout only. A saved `desktop.lines` is left untouched. The code
+  is kept behind two switches (see the README's desktop section).
+
 ## 0.6.2 — 2026-10-28
 
 - **"Rate-limit windows" can show the 7-day pace.** Switch on _Show 7-day pace_ and the 7d figure is followed by

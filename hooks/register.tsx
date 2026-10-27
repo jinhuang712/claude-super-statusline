@@ -14,6 +14,13 @@ import { createApi } from '../src/core/api.ts'
 import { THEMES } from '../src/core/theme.ts'
 import { defineWidget } from '../src/core/types.ts'
 import type { Ctx, LineConfig, Segment, WidgetDefinition, WidgetInstance } from '../src/core/types.ts'
+
+/**
+ * Master switch for the desktop band. Off: the band is not drawn at all, whatever `desktop.lines` holds.
+ * Switched off rather than removed so the desktop code stays intact; the configurator's Desktop tab has
+ * the matching switch (web/src/components/SurfaceSwitch.tsx) and the two must be flipped together.
+ */
+const DESKTOP_BAND_ENABLED = false;
 import { DEFAULT_DESKTOP_LINES, readDesktopLines } from '../src/core/desktop.ts'
 import { hitRatioColor, withLabel } from "../src/widgets/_shared.ts";
 import { usageSingle, usageWindows } from '../src/widgets/usage.ts'
@@ -318,7 +325,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     // The terminal has the statusline under the prompt. `e.surface` is asked per draw, so a session
     // shown in a terminal and the app at once still gets the band in the app.
-    if (e.surface === "terminal" || e.props.hasSurvey) return next(e);
+    if (!DESKTOP_BAND_ENABLED || e.surface === "terminal" || e.props.hasSurvey) return next(e);
 
     const ctx = await snapshot($, await read($, stats))
     const lines = toLines(await loadLines($))
