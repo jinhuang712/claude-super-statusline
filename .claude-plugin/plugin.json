@@ -1,7 +1,7 @@
 {
   "name": "super-statusline",
   "description": "Claude Super Statusline: a statusline for Claude Code and a band for the Claude desktop app, designed in a localhost web UI — /super-statusline:config opens it",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "author": {
     "name": "Jin Huang",
     "url": "https://github.com/jinhuang712"

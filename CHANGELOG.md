@@ -2,7 +2,7 @@
 
 Versions follow the plugin manifest (`.claude-plugin/plugin.json`); marketplace installs update when it changes.
 
-## Unreleased
+## 0.6.3 — 2026-10-28
 
 - **The desktop band is switched off.** It is no longer drawn above the prompt, and the panel's _Terminal | Desktop
   app_ switch is gone, so the panel edits the terminal layout only. A saved `desktop.lines` is left untouched. The code
